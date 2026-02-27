@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>역대 발롱도르 수상자</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px 30px;
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.3), transparent);
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #ccc;
+        }
+
+        .trophy-icon {
+            font-size: 4em;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .stat-box .label {
+            font-size: 0.85em;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 20px 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input {
+            padding: 10px 18px;
+            border-radius: 25px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 0.95em;
+            width: 280px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .filter-bar input::placeholder {
+            color: #888;
+        }
+
+        .filter-bar input:focus {
+            border-color: #d4af37;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        .winner-card {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin-bottom: 14px;
+            padding: 16px 24px;
+            transition: all 0.3s ease;
+            gap: 20px;
+        }
+
+        .winner-card:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateX(6px);
+        }
+
+        .winner-year {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d4af37;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .winner-photo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .winner-info {
+            flex: 1;
+        }
+
+        .winner-name {
+            font-size: 1.25em;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .winner-details {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .winner-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .not-awarded {
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85em;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .winner-card {
+                flex-wrap: wrap;
+                padding: 14px 16px;
+                gap: 12px;
+            }
+
+            .winner-year {
+                font-size: 1.2em;
+                min-width: 55px;
+            }
+
+            .winner-photo {
+                width: 55px;
+                height: 55px;
+            }
+
+            .winner-name {
+                font-size: 1.05em;
+            }
+
+            .stats {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="trophy-icon">&#127942;</span>
+    <h1>역대 발롱도르 수상자</h1>
+    <p>Ballon d'Or Winners 1956 ~ 2025</p>
+</header>
+
+<div class="stats">
+    <div class="stat-box">
+        <div class="number">68</div>
+        <div class="label">역대 시상 횟수</div>
+    </div>
+    <div class="stat-box">
+        <div class="number">8</div>
+        <div class="label">최다 수상 (메시)</div>
+    </div>
+    <div class="stat-box">
+        <div class="number">5</div>
+        <div class="label">호날두 수상 횟수</div>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="선수명, 국가, 클럽으로 검색..." oninput="filterCards()">
+</div>
+
+<div class="container" id="winnerList">
+
+    <div class="winner-card" data-search="2025 ousmane dembélé dembele france 프랑스 paris saint-germain psg 뎀벨레 파리 생제르맹">
+        <div class="winner-year">2025</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/288230-1728461592.jpg" alt="Ousmane Dembélé" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">우스만 뎀벨레 <small style="color:#888">(Ousmane Dembélé)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 파리 생제르맹</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2024 rodri spain 스페인 manchester city 로드리 맨체스터 시티">
+        <div class="winner-year">2024</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/357565-1696075498.jpg" alt="Rodri" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">로드리 <small style="color:#888">(Rodri)</small></div>
+            <div class="winner-details">
+                <span>&#127466;&#127480; 스페인</span>
+                <span>&#9917; 맨체스터 시티</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2023 lionel messi argentina 아르헨티나 inter miami 메시 인터 마이애미">
+        <div class="winner-year">2023</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x8</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 인터 마이애미</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2022 karim benzema france 프랑스 real madrid 벤제마 레알 마드리드">
+        <div class="winner-year">2022</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/18922-1668504779.jpg" alt="Karim Benzema" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">카림 벤제마 <small style="color:#888">(Karim Benzema)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2021 lionel messi argentina 아르헨티나 paris saint-germain psg 메시 파리 생제르맹">
+        <div class="winner-year">2021</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x7</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 파리 생제르맹</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card not-awarded" data-search="2020 not awarded 미시상 covid">
+        <div class="winner-year">2020</div>
+        <div style="width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:1.5em;flex-shrink:0">—</div>
+        <div class="winner-info">
+            <div class="winner-name">미시상</div>
+            <div class="winner-details">
+                <span>COVID-19 팬데믹으로 인해 시상하지 않음</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2019 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2019</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x6</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2018 luka modric croatia 크로아티아 real madrid 모드리치 레알 마드리드">
+        <div class="winner-year">2018</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/27992-1696075498.jpg" alt="Luka Modrić" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">루카 모드리치 <small style="color:#888">(Luka Modrić)</small></div>
+            <div class="winner-details">
+                <span>&#127469;&#127479; 크로아티아</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2017 cristiano ronaldo portugal 포르투갈 real madrid 호날두 레알 마드리드">
+        <div class="winner-year">2017</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/8198-1714047003.jpg" alt="Cristiano Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">크리스티아누 호날두 <small style="color:#888">(Cristiano Ronaldo)</small> <span class="badge">x5</span></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2016 cristiano ronaldo portugal 포르투갈 real madrid 호날두 레알 마드리드">
+        <div class="winner-year">2016</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/8198-1714047003.jpg" alt="Cristiano Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">크리스티아누 호날두 <small style="color:#888">(Cristiano Ronaldo)</small> <span class="badge">x4</span></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2015 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2015</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x5</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2014 cristiano ronaldo portugal 포르투갈 real madrid 호날두 레알 마드리드">
+        <div class="winner-year">2014</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/8198-1714047003.jpg" alt="Cristiano Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">크리스티아누 호날두 <small style="color:#888">(Cristiano Ronaldo)</small> <span class="badge">x3</span></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2013 cristiano ronaldo portugal 포르투갈 real madrid 호날두 레알 마드리드">
+        <div class="winner-year">2013</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/8198-1714047003.jpg" alt="Cristiano Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">크리스티아누 호날두 <small style="color:#888">(Cristiano Ronaldo)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2012 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2012</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x4</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2011 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2011</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x3</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2010 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2010</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2009 lionel messi argentina 아르헨티나 barcelona 메시 바르셀로나">
+        <div class="winner-year">2009</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/28003-1710080339.jpg" alt="Lionel Messi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리오넬 메시 <small style="color:#888">(Lionel Messi)</small></div>
+            <div class="winner-details">
+                <span>&#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2008 cristiano ronaldo portugal 포르투갈 manchester united 호날두 맨체스터 유나이티드">
+        <div class="winner-year">2008</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/8198-1714047003.jpg" alt="Cristiano Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">크리스티아누 호날두 <small style="color:#888">(Cristiano Ronaldo)</small></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 맨체스터 유나이티드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2007 kaká kaka brazil 브라질 milan 카카 밀란">
+        <div class="winner-year">2007</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3366-1686297498.jpg" alt="Kaká" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">카카 <small style="color:#888">(Kaká)</small></div>
+            <div class="winner-details">
+                <span>&#127463;&#127479; 브라질</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2006 fabio cannavaro italy 이탈리아 real madrid 칸나바로 레알 마드리드">
+        <div class="winner-year">2006</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/5563-1686130949.jpg" alt="Fabio Cannavaro" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">파비오 칸나바로 <small style="color:#888">(Fabio Cannavaro)</small></div>
+            <div class="winner-details">
+                <span>&#127470;&#127481; 이탈리아</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2005 ronaldinho brazil 브라질 barcelona 호나우지뉴 바르셀로나">
+        <div class="winner-year">2005</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3373-1686130803.jpg" alt="Ronaldinho" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">호나우지뉴 <small style="color:#888">(Ronaldinho)</small></div>
+            <div class="winner-details">
+                <span>&#127463;&#127479; 브라질</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2004 andriy shevchenko ukraine 우크라이나 milan 셰프첸코 밀란">
+        <div class="winner-year">2004</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3524-1686131017.jpg" alt="Andriy Shevchenko" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">안드리 셰프첸코 <small style="color:#888">(Andriy Shevchenko)</small></div>
+            <div class="winner-details">
+                <span>&#127482;&#127462; 우크라이나</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2003 pavel nedvěd nedved czech 체코 juventus 네드베드 유벤투스">
+        <div class="winner-year">2003</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/5810-1686131236.jpg" alt="Pavel Nedvěd" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">파벨 네드베드 <small style="color:#888">(Pavel Nedvěd)</small></div>
+            <div class="winner-details">
+                <span>&#127464;&#127487; 체코</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2002 ronaldo brazil 브라질 real madrid 호나우두 레알 마드리드">
+        <div class="winner-year">2002</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3140-1686130662.jpg" alt="Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">호나우두 <small style="color:#888">(Ronaldo)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127463;&#127479; 브라질</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2001 michael owen england 잉글랜드 liverpool 오웬 리버풀">
+        <div class="winner-year">2001</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3SEK2-1686130944.jpg" alt="Michael Owen" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">마이클 오웬 <small style="color:#888">(Michael Owen)</small></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917605;&#917614;&#917607;&#917631; 잉글랜드</span>
+                <span>&#9917; 리버풀</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="2000 luís figo luis figo portugal 포르투갈 real madrid 피구 레알 마드리드">
+        <div class="winner-year">2000</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3210-1686130700.jpg" alt="Luís Figo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">루이스 피구 <small style="color:#888">(Luís Figo)</small></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1999 rivaldo brazil 브라질 barcelona 리바우두 바르셀로나">
+        <div class="winner-year">1999</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3182-1686130681.jpg" alt="Rivaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">리바우두 <small style="color:#888">(Rivaldo)</small></div>
+            <div class="winner-details">
+                <span>&#127463;&#127479; 브라질</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1998 zinedine zidane france 프랑스 juventus 지단 유벤투스">
+        <div class="winner-year">1998</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3111-1686130632.jpg" alt="Zinedine Zidane" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">지네딘 지단 <small style="color:#888">(Zinedine Zidane)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1997 ronaldo brazil 브라질 internazionale inter milan 호나우두 인테르">
+        <div class="winner-year">1997</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/3140-1686130662.jpg" alt="Ronaldo" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">호나우두 <small style="color:#888">(Ronaldo)</small></div>
+            <div class="winner-details">
+                <span>&#127463;&#127479; 브라질</span>
+                <span>&#9917; 인테르나치오날레</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1996 matthias sammer germany 독일 borussia dortmund 자머 도르트문트">
+        <div class="winner-year">1996</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56063-1686130901.jpg" alt="Matthias Sammer" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">마티아스 자머 <small style="color:#888">(Matthias Sammer)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 독일</span>
+                <span>&#9917; 보루시아 도르트문트</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1995 george weah liberia 라이베리아 milan 웨아 밀란">
+        <div class="winner-year">1995</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56064-1686131085.jpg" alt="George Weah" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">조지 웨아 <small style="color:#888">(George Weah)</small></div>
+            <div class="winner-details">
+                <span>&#127473;&#127479; 라이베리아</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1994 hristo stoichkov bulgaria 불가리아 barcelona 스토이치코프 바르셀로나">
+        <div class="winner-year">1994</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/65498-1686131143.jpg" alt="Hristo Stoichkov" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">흐리스토 스토이치코프 <small style="color:#888">(Hristo Stoichkov)</small></div>
+            <div class="winner-details">
+                <span>&#127463;&#127468; 불가리아</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1993 roberto baggio italy 이탈리아 juventus 바조 유벤투스">
+        <div class="winner-year">1993</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/5765-1686131219.jpg" alt="Roberto Baggio" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">로베르토 바조 <small style="color:#888">(Roberto Baggio)</small></div>
+            <div class="winner-details">
+                <span>&#127470;&#127481; 이탈리아</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1992 marco van basten netherlands 네덜란드 milan 반 바스텐 밀란">
+        <div class="winner-year">1992</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56090-1686131093.jpg" alt="Marco van Basten" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">마르코 반 바스텐 <small style="color:#888">(Marco van Basten)</small> <span class="badge">x3</span></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1991 jean-pierre papin france 프랑스 marseille 파팽 마르세유">
+        <div class="winner-year">1991</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56091-1686131098.jpg" alt="Jean-Pierre Papin" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">장피에르 파팽 <small style="color:#888">(Jean-Pierre Papin)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 올림피크 마르세유</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1990 lothar matthäus matthaus germany 독일 internazionale inter 마테우스 인테르">
+        <div class="winner-year">1990</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56092-1686131102.jpg" alt="Lothar Matthäus" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">로타어 마테우스 <small style="color:#888">(Lothar Matthäus)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 독일</span>
+                <span>&#9917; 인테르나치오날레</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1989 marco van basten netherlands 네덜란드 milan 반 바스텐 밀란">
+        <div class="winner-year">1989</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56090-1686131093.jpg" alt="Marco van Basten" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">마르코 반 바스텐 <small style="color:#888">(Marco van Basten)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1988 marco van basten netherlands 네덜란드 milan 반 바스텐 밀란">
+        <div class="winner-year">1988</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56090-1686131093.jpg" alt="Marco van Basten" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">마르코 반 바스텐 <small style="color:#888">(Marco van Basten)</small></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1987 ruud gullit netherlands 네덜란드 milan 굴리트 밀란">
+        <div class="winner-year">1987</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56093-1686131106.jpg" alt="Ruud Gullit" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">루트 굴리트 <small style="color:#888">(Ruud Gullit)</small></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1986 igor belanov soviet union 소련 dynamo kyiv 벨라노프 디나모 키예프">
+        <div class="winner-year">1986</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56094-1686131110.jpg" alt="Igor Belanov" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">이고르 벨라노프 <small style="color:#888">(Igor Belanov)</small></div>
+            <div class="winner-details">
+                <span>소련</span>
+                <span>&#9917; 디나모 키예프</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1985 michel platini france 프랑스 juventus 플라티니 유벤투스">
+        <div class="winner-year">1985</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56095-1686131114.jpg" alt="Michel Platini" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">미셸 플라티니 <small style="color:#888">(Michel Platini)</small> <span class="badge">x3</span></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1984 michel platini france 프랑스 juventus 플라티니 유벤투스">
+        <div class="winner-year">1984</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56095-1686131114.jpg" alt="Michel Platini" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">미셸 플라티니 <small style="color:#888">(Michel Platini)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1983 michel platini france 프랑스 juventus 플라티니 유벤투스">
+        <div class="winner-year">1983</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56095-1686131114.jpg" alt="Michel Platini" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">미셸 플라티니 <small style="color:#888">(Michel Platini)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1982 paolo rossi italy 이탈리아 juventus 로시 유벤투스">
+        <div class="winner-year">1982</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56096-1686131118.jpg" alt="Paolo Rossi" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">파올로 로시 <small style="color:#888">(Paolo Rossi)</small></div>
+            <div class="winner-details">
+                <span>&#127470;&#127481; 이탈리아</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1981 karl-heinz rummenigge west germany 서독 bayern munich 루메니게 바이에른 뮌헨">
+        <div class="winner-year">1981</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56097-1686131122.jpg" alt="Karl-Heinz Rummenigge" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">카를하인츠 루메니게 <small style="color:#888">(Karl-Heinz Rummenigge)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 서독</span>
+                <span>&#9917; 바이에른 뮌헨</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1980 karl-heinz rummenigge west germany 서독 bayern munich 루메니게 바이에른 뮌헨">
+        <div class="winner-year">1980</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56097-1686131122.jpg" alt="Karl-Heinz Rummenigge" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">카를하인츠 루메니게 <small style="color:#888">(Karl-Heinz Rummenigge)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 서독</span>
+                <span>&#9917; 바이에른 뮌헨</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1979 kevin keegan england 잉글랜드 hamburg 키건 함부르크">
+        <div class="winner-year">1979</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56098-1686131126.jpg" alt="Kevin Keegan" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">케빈 키건 <small style="color:#888">(Kevin Keegan)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917605;&#917614;&#917607;&#917631; 잉글랜드</span>
+                <span>&#9917; 함부르크 SV</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1978 kevin keegan england 잉글랜드 hamburg 키건 함부르크">
+        <div class="winner-year">1978</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56098-1686131126.jpg" alt="Kevin Keegan" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">케빈 키건 <small style="color:#888">(Kevin Keegan)</small></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917605;&#917614;&#917607;&#917631; 잉글랜드</span>
+                <span>&#9917; 함부르크 SV</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1977 allan simonsen denmark 덴마크 borussia mönchengladbach 시몬센">
+        <div class="winner-year">1977</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56099-1686131130.jpg" alt="Allan Simonsen" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">알란 시몬센 <small style="color:#888">(Allan Simonsen)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127472; 덴마크</span>
+                <span>&#9917; 보루시아 묀헨글라트바흐</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1976 franz beckenbauer west germany 서독 bayern munich 베켄바워 바이에른 뮌헨">
+        <div class="winner-year">1976</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56100-1686131134.jpg" alt="Franz Beckenbauer" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">프란츠 베켄바워 <small style="color:#888">(Franz Beckenbauer)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 서독</span>
+                <span>&#9917; 바이에른 뮌헨</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1975 oleg blokhin soviet union 소련 dynamo kyiv 블로힌 디나모 키예프">
+        <div class="winner-year">1975</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56101-1686131138.jpg" alt="Oleg Blokhin" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">올레그 블로힌 <small style="color:#888">(Oleg Blokhin)</small></div>
+            <div class="winner-details">
+                <span>소련</span>
+                <span>&#9917; 디나모 키예프</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1974 johan cruyff netherlands 네덜란드 barcelona 크루이프 바르셀로나">
+        <div class="winner-year">1974</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56102-1686131142.jpg" alt="Johan Cruyff" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">요한 크루이프 <small style="color:#888">(Johan Cruyff)</small> <span class="badge">x3</span></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1973 johan cruyff netherlands 네덜란드 barcelona 크루이프 바르셀로나">
+        <div class="winner-year">1973</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56102-1686131142.jpg" alt="Johan Cruyff" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">요한 크루이프 <small style="color:#888">(Johan Cruyff)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1972 franz beckenbauer west germany 서독 bayern munich 베켄바워 바이에른 뮌헨">
+        <div class="winner-year">1972</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56100-1686131134.jpg" alt="Franz Beckenbauer" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">프란츠 베켄바워 <small style="color:#888">(Franz Beckenbauer)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 서독</span>
+                <span>&#9917; 바이에른 뮌헨</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1971 johan cruyff netherlands 네덜란드 ajax 크루이프 아약스">
+        <div class="winner-year">1971</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56102-1686131142.jpg" alt="Johan Cruyff" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">요한 크루이프 <small style="color:#888">(Johan Cruyff)</small></div>
+            <div class="winner-details">
+                <span>&#127475;&#127473; 네덜란드</span>
+                <span>&#9917; 아약스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1970 gerd müller muller west germany 서독 bayern munich 뮐러 바이에른 뮌헨">
+        <div class="winner-year">1970</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56103-1686131146.jpg" alt="Gerd Müller" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">게르트 뮐러 <small style="color:#888">(Gerd Müller)</small></div>
+            <div class="winner-details">
+                <span>&#127465;&#127466; 서독</span>
+                <span>&#9917; 바이에른 뮌헨</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1969 gianni rivera italy 이탈리아 milan 리베라 밀란">
+        <div class="winner-year">1969</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56104-1686131150.jpg" alt="Gianni Rivera" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">잔니 리베라 <small style="color:#888">(Gianni Rivera)</small></div>
+            <div class="winner-details">
+                <span>&#127470;&#127481; 이탈리아</span>
+                <span>&#9917; AC 밀란</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1968 george best northern ireland 북아일랜드 manchester united 베스트 맨체스터 유나이티드">
+        <div class="winner-year">1968</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56105-1686131154.jpg" alt="George Best" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">조지 베스트 <small style="color:#888">(George Best)</small></div>
+            <div class="winner-details">
+                <span>북아일랜드</span>
+                <span>&#9917; 맨체스터 유나이티드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1967 flórián albert florian albert hungary 헝가리 ferencváros 알베르트 페렌츠바로시">
+        <div class="winner-year">1967</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56106-1686131158.jpg" alt="Flórián Albert" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">플로리안 알베르트 <small style="color:#888">(Flórián Albert)</small></div>
+            <div class="winner-details">
+                <span>&#127469;&#127482; 헝가리</span>
+                <span>&#9917; 페렌츠바로시 TC</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1966 bobby charlton england 잉글랜드 manchester united 찰턴 맨체스터 유나이티드">
+        <div class="winner-year">1966</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56107-1686131162.jpg" alt="Bobby Charlton" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">바비 찰턴 <small style="color:#888">(Bobby Charlton)</small></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917605;&#917614;&#917607;&#917631; 잉글랜드</span>
+                <span>&#9917; 맨체스터 유나이티드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1965 eusébio eusebio portugal 포르투갈 benfica 에우제비우 벤피카">
+        <div class="winner-year">1965</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56108-1686131166.jpg" alt="Eusébio" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">에우제비우 <small style="color:#888">(Eusébio)</small></div>
+            <div class="winner-details">
+                <span>&#127477;&#127481; 포르투갈</span>
+                <span>&#9917; 벤피카</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1964 denis law scotland 스코틀랜드 manchester united 데니스 로 맨체스터 유나이티드">
+        <div class="winner-year">1964</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56109-1686131170.jpg" alt="Denis Law" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">데니스 로 <small style="color:#888">(Denis Law)</small></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917619;&#917603;&#917620;&#917631; 스코틀랜드</span>
+                <span>&#9917; 맨체스터 유나이티드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1963 lev yashin soviet union 소련 dynamo moscow 야신 디나모 모스크바">
+        <div class="winner-year">1963</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56110-1686131174.jpg" alt="Lev Yashin" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">레프 야신 <small style="color:#888">(Lev Yashin)</small></div>
+            <div class="winner-details">
+                <span>소련</span>
+                <span>&#9917; 디나모 모스크바</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1962 josef masopust czechoslovakia 체코슬로바키아 dukla prague 마소푸스트 두클라 프라하">
+        <div class="winner-year">1962</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56111-1686131178.jpg" alt="Josef Masopust" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">요제프 마소푸스트 <small style="color:#888">(Josef Masopust)</small></div>
+            <div class="winner-details">
+                <span>체코슬로바키아</span>
+                <span>&#9917; 두클라 프라하</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1961 omar sívori sivori italy 이탈리아 juventus 시보리 유벤투스">
+        <div class="winner-year">1961</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56112-1686131182.jpg" alt="Omar Sívori" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">오마르 시보리 <small style="color:#888">(Omar Sívori)</small></div>
+            <div class="winner-details">
+                <span>&#127470;&#127481; 이탈리아</span>
+                <span>&#9917; 유벤투스</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1960 luis suárez suarez spain 스페인 barcelona 수아레스 바르셀로나">
+        <div class="winner-year">1960</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56113-1686131186.jpg" alt="Luis Suárez" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">루이스 수아레스 <small style="color:#888">(Luis Suárez)</small></div>
+            <div class="winner-details">
+                <span>&#127466;&#127480; 스페인</span>
+                <span>&#9917; 바르셀로나</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1959 alfredo di stéfano stefano spain argentina 스페인 아르헨티나 real madrid 디 스테파노 레알 마드리드">
+        <div class="winner-year">1959</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56114-1686131190.jpg" alt="Alfredo Di Stéfano" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">알프레도 디 스테파노 <small style="color:#888">(Alfredo Di Stéfano)</small> <span class="badge">x2</span></div>
+            <div class="winner-details">
+                <span>&#127466;&#127480; 스페인 / &#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1958 raymond kopa france 프랑스 real madrid 코파 레알 마드리드">
+        <div class="winner-year">1958</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56115-1686131194.jpg" alt="Raymond Kopa" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">레몽 코파 <small style="color:#888">(Raymond Kopa)</small></div>
+            <div class="winner-details">
+                <span>&#127467;&#127479; 프랑스</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1957 alfredo di stéfano stefano spain argentina 스페인 아르헨티나 real madrid 디 스테파노 레알 마드리드">
+        <div class="winner-year">1957</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56114-1686131190.jpg" alt="Alfredo Di Stéfano" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">알프레도 디 스테파노 <small style="color:#888">(Alfredo Di Stéfano)</small></div>
+            <div class="winner-details">
+                <span>&#127466;&#127480; 스페인 / &#127462;&#127479; 아르헨티나</span>
+                <span>&#9917; 레알 마드리드</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-card" data-search="1956 stanley matthews england 잉글랜드 blackpool 매튜스 블랙풀">
+        <div class="winner-year">1956</div>
+        <img class="winner-photo" src="https://img.a.transfermarkt.technology/portrait/header/56116-1686131198.jpg" alt="Stanley Matthews" loading="lazy">
+        <div class="winner-info">
+            <div class="winner-name">스탠리 매튜스 <small style="color:#888">(Stanley Matthews)</small></div>
+            <div class="winner-details">
+                <span>&#127988;&#917607;&#917602;&#917605;&#917614;&#917607;&#917631; 잉글랜드</span>
+                <span>&#9917; 블랙풀</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Data sources: France Football, UEFA, Wikipedia &bull; Last updated: 2025</p>
+</footer>
+
+<script>
+    function filterCards() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const cards = document.querySelectorAll('.winner-card');
+        cards.forEach(card => {
+            const searchData = card.getAttribute('data-search').toLowerCase();
+            card.style.display = searchData.includes(query) ? 'flex' : 'none';
+        });
+    }
+</script>
+
+</body>
+</html>
