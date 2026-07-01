@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amplitude Web SDK Test</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Amplitude Web SDK — Install (script loader) -->
+  <script src="https://cdn.amplitude.com/script/c9d6c776f682045c5a2456782659cb49.js"></script>
+
+  <style>
+    :root {
+      --bg:           #EDF1F8;
+      --surface:      #FFFFFF;
+      --surface-2:    #F6F9FD;
+      --ink:          #0A2545;
+      --ink-soft:     #46566E;
+      --ink-faint:    #8492A8;
+      --line:         #D5DEEC;
+      --yonsei:       #00337F;
+      --yonsei-mid:   #1E5FB0;
+      --yonsei-light: #E6EDF7;
+      --yonsei-line:  #C4D4EA;
+      --radius:       14px;
+      --maxw:         820px;
+
+      --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+      --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+      --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink-soft);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 56px 24px 96px;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-size: 12px;
+      color: var(--ink-faint);
+      margin: 0 0 14px;
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--ink);
+      font-size: clamp(34px, 6.5vw, 54px);
+      line-height: 1.1;
+      margin: 0 0 40px;
+    }
+    h1 .accent { color: var(--yonsei); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--yonsei);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    label.field-label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--yonsei);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      font-family: var(--sans);
+      font-size: 15px;
+      color: var(--ink);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--yonsei-mid);
+      box-shadow: 0 0 0 3px var(--yonsei-light);
+    }
+    input[type="text"]::placeholder { color: var(--ink-faint); }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-head .field-label { margin-bottom: 0; }
+
+    .prop-rows { display: flex; flex-direction: column; gap: 10px; }
+
+    .prop-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .prop-empty {
+      color: var(--ink-faint);
+      font-size: 14px;
+      padding: 6px 0 2px;
+    }
+
+    button {
+      font-family: var(--sans);
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: transform .12s, background .15s, box-shadow .15s, border-color .15s;
+    }
+    button:focus-visible {
+      outline: 2px solid var(--yonsei-mid);
+      outline-offset: 2px;
+    }
+
+    .btn-add {
+      background: var(--yonsei-light);
+      color: var(--yonsei);
+      border: 1px solid var(--yonsei-line);
+      font-size: 13px;
+      padding: 8px 14px;
+    }
+    .btn-add:hover { background: #dbe6f5; }
+
+    .btn-remove {
+      background: transparent;
+      color: var(--ink-faint);
+      border: 1px solid var(--line);
+      font-size: 16px;
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-remove:hover { color: var(--warn, #B25A00); border-color: var(--warn, #B25A00); }
+
+    .btn-send {
+      width: 100%;
+      background: var(--yonsei);
+      color: #fff;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px;
+      margin-top: 4px;
+    }
+    .btn-send:hover { background: var(--yonsei-mid); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,51,127,.22); }
+    .btn-send:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="eyebrow">Amplitude · Web SDK</p>
+    <h1><span class="accent">Amplitude</span> Web SDK</h1>
+
+    <div class="card">
+      <label class="field-label" for="eventName">Event Name</label>
+      <input type="text" id="eventName" placeholder="예: Button Clicked">
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <span class="field-label">Event Property</span>
+        <button type="button" class="btn-add" id="addProp">+ Property</button>
+      </div>
+      <div class="prop-rows" id="propRows">
+        <p class="prop-empty" id="propEmpty">아직 추가된 프로퍼티가 없습니다.</p>
+      </div>
+    </div>
+
+    <button type="button" class="btn-send" id="sendEvent">Send Event</button>
+  </main>
+
+  <script>
+    var propRows = document.getElementById('propRows');
+    var propEmpty = document.getElementById('propEmpty');
+
+    function refreshEmpty() {
+      propEmpty.style.display = propRows.querySelector('.prop-row') ? 'none' : 'block';
+    }
+
+    function addPropRow() {
+      var row = document.createElement('div');
+      row.className = 'prop-row';
+
+      var k = document.createElement('input');
+      k.type = 'text'; k.placeholder = 'Key'; k.className = 'prop-key';
+
+      var v = document.createElement('input');
+      v.type = 'text'; v.placeholder = 'Value'; v.className = 'prop-value';
+
+      var rm = document.createElement('button');
+      rm.type = 'button'; rm.className = 'btn-remove'; rm.textContent = '×';
+      rm.setAttribute('aria-label', 'Remove property');
+      rm.addEventListener('click', function () {
+        row.remove();
+        refreshEmpty();
+      });
+
+      row.appendChild(k);
+      row.appendChild(v);
+      row.appendChild(rm);
+      propRows.appendChild(row);
+      refreshEmpty();
+      k.focus();
+    }
+
+    document.getElementById('addProp').addEventListener('click', addPropRow);
+
+    // ── Amplitude Web SDK — Initialize (Option 4: init with user ID + options) ──
+    var AMPLITUDE_API_KEY = 'c9d6c776f682045c5a2456782659cb49';
+    amplitude.init(AMPLITUDE_API_KEY, 'U202607010001', {
+      autocapture: {
+        attribution: true,
+        pageViews: true,
+        sessions: true,
+        formInteractions: false,
+        fileDownloads: false,
+        elementInteractions: false,
+        pageUrlEnrichment: false,
+        webVitals: false,
+        networkTracking: false,
+        frustrationInteractions: false
+      }
+    });
+
+    // ── Send Event ──
+    document.getElementById('sendEvent').addEventListener('click', function () {
+      var eventName = document.getElementById('eventName').value.trim();
+
+      // 비어 있는 입력 필드 검증 → 팝업으로 리마인드
+      if (!eventName) {
+        alert('Event Name 을 입력해주세요.');
+        return;
+      }
+
+      var rows = propRows.querySelectorAll('.prop-row');
+      for (var i = 0; i < rows.length; i++) {
+        var key = rows[i].querySelector('.prop-key').value.trim();
+        var val = rows[i].querySelector('.prop-value').value.trim();
+        if (!key || !val) {
+          alert('Event Property의 ' + (i + 1) + '번째 항목에 비어 있는 Key/Value가 있습니다. 값을 입력하거나 해당 항목을 삭제해주세요.');
+          return;
+        }
+      }
+
+      // Event Property 수집
+      var props = {};
+      rows.forEach(function (row) {
+        var key = row.querySelector('.prop-key').value.trim();
+        var val = row.querySelector('.prop-value').value.trim();
+        props[key] = val;
+      });
+
+      // Amplitude 로 이벤트 전송
+      amplitude.track(eventName, props);
+      console.log('[Amplitude] track:', eventName, props);
+    });
+  </script>
+</body>
+</html>
