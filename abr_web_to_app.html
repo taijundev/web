@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>브리핑 · 실시간 뉴스</title>
 <style>
   :root{
     --bg:#EDF1F8; --surface:#FFFFFF; --surface-2:#F6F9FD;
@@ -23,7 +29,7 @@
   .app{position:relative;width:100%;max-width:430px;min-height:100vh;
     background:var(--surface);display:flex;flex-direction:column;
     box-shadow:0 0 0 1px var(--line),0 30px 80px -30px rgba(10,37,69,.35);
-    padding-bottom:78px;}
+    padding-bottom:calc(78px + env(safe-area-inset-bottom));}
 
   /* ---- top app bar ---- */
   .bar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
@@ -136,7 +142,8 @@
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:50;margin:0 auto;
     max-width:430px;background:rgba(255,255,255,.95);
     backdrop-filter:blur(12px);border-top:1px solid var(--line);
-    display:flex;justify-content:space-around;padding:9px 8px 14px;}
+    display:flex;justify-content:space-around;
+    padding:9px 8px calc(14px + env(safe-area-inset-bottom));}
   .nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
     color:var(--ink-faint);text-decoration:none;font-family:var(--mono);
     font-size:9.5px;letter-spacing:.06em;transition:.15s ease;}
@@ -151,6 +158,8 @@
   }
   :focus-visible{outline:2px solid var(--yonsei);outline-offset:2px;border-radius:4px;}
 </style>
+</head>
+<body>
 
 <!-- Airbridge Web SDK — 설치 (loader) -->
 <script>
@@ -311,3 +320,6 @@ airbridge.init({
     }
   );
 </script>
+
+</body>
+</html>
