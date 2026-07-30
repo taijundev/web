@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airbridge PC Install Tracking</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Airbridge Web SDK — 설치 (loader) -->
+<script>
+(function(a_,i_,r_,_b,_r,_i,_d,_g,_e){function q(b,a){function d(){var l=x(b,a);y(l)}if(0<_g){var e,f=new (null!=(e=a_.XDomainRequest)?e:a_.XMLHttpRequest);e=function(){};f.open("GET",a);f.timeout=_g;f.onload=d;f.onerror=e;f.onprogress=e;f.ontimeout=e;f.send()}else d()}function y(b){if("complete"===i_.readyState)i_.head.appendChild(b);else{var a=function(){a_.removeEventListener("load",a);i_.head.appendChild(b)};a_.addEventListener("load",a)}}function x(b,a){var d=i_.createElement(r_);d.async=!0;d.src=a;d.onerror=function(){return z(b)};return d}function z(b){b.queue.filter(function(a){return 0<=_d.indexOf(a[0])}).forEach(function(a){a=a[1];a=a[a.length-1];"function"===typeof a&&a("Failed to load Airbridge SDK.")})}function r(b){var a={queue:null!=b?b:[],get isSDKEnabled(){return!1}};_i.concat(_d).forEach(function(d){var e=d.split("."),f=e.pop();e.reduce(function(l,t){var u;return l[t]=null!=(u=l[t])?u:{}},a)[f]=function(){a.queue.push([d,arguments])}});return a}null!=a_.__AIRBRIDGE__||(a_.__AIRBRIDGE__={mocks:[]});"undefined"!==typeof i_.documentMode&&(_r=_r.replace(/^https:/,""));a_.createAirbridge=function(){var b=r(),a;null==(a=a_.__AIRBRIDGE__)||a.mocks.push(b);q(b,_r);return b};a_[_b]||(_e=r(_e),a_[_b]=_e,q(_e,_r))})(window,document,"script","airbridge","https://static.airbridge.io/sdk/latest/airbridge.min.js","init startTracking stopTracking openBanner setBanner setDownload setDownloads openDeeplink setDeeplinks sendWeb setUserAgent setMobileAppData setUserID clearUserID setUserEmail clearUserEmail setUserPhone clearUserPhone setUserAttribute removeUserAttribute clearUserAttributes setUserAlias removeUserAlias clearUserAlias clearUser setUserId setUserAttributes addUserAlias setDeviceAlias removeDeviceAlias clearDeviceAlias setDeviceIFV setDeviceIFA setDeviceGAID events.send events.signIn events.signUp events.signOut events.purchased events.addedToCart events.productDetailsViewEvent events.homeViewEvent events.productListViewEvent events.searchResultViewEvent".split(" "),["events.wait","fetchResource","createTouchpoint","createTrackingLink"],0);
+
+// SDK 초기화 — 필수 옵션(app / webToken)만 사용
+airbridge.init({
+  app: 'airbridgedev',
+  webToken: '9d647d9c8d3049698d38965147035941',
+});
+</script>
+
+<style>
+:root {
+  --bg:           #EDF1F8;
+  --surface:      #FFFFFF;
+  --surface-2:    #F6F9FD;
+  --ink:          #0A2545;
+  --ink-soft:     #46566E;
+  --ink-faint:    #8492A8;
+  --line:         #D5DEEC;
+  --yonsei:       #00337F;
+  --yonsei-mid:   #1E5FB0;
+  --yonsei-light: #E6EDF7;
+  --yonsei-line:  #C4D4EA;
+  --formula-bg:   #062A5E;
+  --formula-ink:  #EAF0FA;
+  --formula-acc:  #9DC2EE;
+  --good:         #1B7F5A;
+  --warn:         #B25A00;
+  --radius:       14px;
+  --maxw:         820px;
+
+  --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+  --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+}
+
+* { box-sizing: border-box; }
+.sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 56px 24px 120px;
+}
+
+/* ── header ─────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  margin: 0 0 18px;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(34px, 6.5vw, 54px);
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 20px;
+  letter-spacing: -0.01em;
+}
+h1 .accent { color: var(--yonsei); }
+.lead {
+  font-size: 17px;
+  max-width: 62ch;
+  margin: 0 0 14px;
+}
+.rule {
+  height: 1px;
+  background: var(--line);
+  margin: 40px 0;
+  border: 0;
+}
+
+/* ── section ────────────────────────────── */
+section { margin: 0 0 44px; }
+.sec-no {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(21px, 3.4vw, 27px);
+  line-height: 1.35;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.sec-desc {
+  font-size: 15px;
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+  max-width: 62ch;
+}
+
+/* ── url block (dark) ───────────────────── */
+.urlblock {
+  background: var(--formula-bg);
+  color: var(--formula-ink);
+  border-radius: var(--radius);
+  padding: 22px 22px 18px;
+  position: relative;
+}
+.urlblock .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--formula-acc);
+  margin: 0 0 12px;
+}
+.urlblock .value {
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: break-all;
+  margin: 0 0 18px;
+  color: var(--formula-ink);
+}
+.urlblock .value .q { color: var(--formula-acc); }
+
+/* ── buttons ────────────────────────────── */
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--yonsei-line);
+  background: var(--surface);
+  color: var(--yonsei);
+  border-radius: 8px;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, transform .16s ease, border-color .16s ease;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--yonsei-light); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:focus-visible { outline: 2px solid var(--yonsei-mid); outline-offset: 2px; }
+.btn.is-done { background: var(--good); border-color: var(--good); color: #fff; }
+
+.btn-onDark {
+  border-color: rgba(157,194,238,.42);
+  background: rgba(157,194,238,.12);
+  color: var(--formula-acc);
+}
+.btn-onDark:hover { background: rgba(157,194,238,.22); }
+.btn-onDark:focus-visible { outline-color: var(--formula-acc); }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.btn-mini {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--yonsei-mid);
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+.btn-mini:hover { background: var(--yonsei-light); border-color: var(--yonsei-line); }
+.btn-mini:focus-visible { outline: 2px solid var(--yonsei-mid); outline-offset: 2px; }
+.btn-mini.is-done { background: var(--good); border-color: var(--good); color: #fff; }
+
+/* ── table ──────────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) { background: var(--surface-2); }
+td.k, th.k {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--yonsei);
+  white-space: nowrap;
+  width: 1%;
+  font-weight: 500;
+}
+td.v {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  word-break: break-all;
+}
+td.v .empty { color: var(--ink-faint); font-style: italic; }
+td.act { width: 1%; white-space: nowrap; text-align: right; }
+
+/* ── callout ────────────────────────────── */
+.callout {
+  border: 1px solid var(--yonsei-line);
+  border-left: 4px solid var(--yonsei);
+  background: var(--yonsei-light);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+.callout.warn {
+  border-color: #EBD9C2;
+  border-left-color: var(--warn);
+  background: #FBF4EB;
+}
+.callout strong { color: var(--ink); font-weight: 600; }
+.callout code, .inline-code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--yonsei);
+}
+
+/* ── toast ──────────────────────────────── */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translate(-50%, 16px);
+  background: var(--formula-bg);
+  color: var(--formula-ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 11px 20px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(6,42,94,.24);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 40;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── footer ─────────────────────────────── */
+footer {
+  margin-top: 56px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── motion ─────────────────────────────── */
+.rise { opacity: 0; transform: translateY(14px); animation: rise .6s ease forwards; }
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+.d1 { animation-delay: .05s; } .d2 { animation-delay: .12s; }
+.d3 { animation-delay: .19s; } .d4 { animation-delay: .26s; }
+.d5 { animation-delay: .33s; } .d6 { animation-delay: .40s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; opacity: 1; transform: none; }
+  .btn, .btn-mini, .toast { transition: none; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="rise d1">
+    <p class="eyebrow">Airbridge · Web SDK · Landing Inspector</p>
+    <h1>Airbridge <span class="accent">PC Install</span> Tracking</h1>
+    <p class="lead">
+      이 페이지에 <strong>최종 랜딩된 시점의 URL</strong>을 그대로 읽어 화면에 표시합니다.
+      전체 URL, URL 구성 요소, 쿼리 파라미터를 각각 복사 버튼으로 클립보드에 복사할 수 있습니다.
+    </p>
+  </header>
+
+  <hr class="rule">
+
+  <!-- 01 -->
+  <section class="rise d2">
+    <p class="sec-no">01 — 최종 랜딩 URL</p>
+    <h2>전체 URL</h2>
+    <p class="sec-desc">
+      리다이렉트가 있었다면 그 결과로 도달한 <em>현재</em> 주소입니다. 쿼리스트링·프래그먼트를 포함한 원문 그대로입니다.
+    </p>
+
+    <div class="urlblock">
+      <p class="label">window.location.href</p>
+      <p class="value" id="fullUrl">—</p>
+      <div class="btn-row">
+        <button class="btn btn-onDark" type="button" data-copy-target="fullUrl">URL 복사</button>
+        <button class="btn btn-onDark" type="button" id="copyAll">전체 정보 복사</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="rise d3">
+    <p class="sec-no">02 — URL 구성 요소</p>
+    <h2>Location 분해</h2>
+    <p class="sec-desc">
+      <span class="inline-code">window.location</span> 의 각 필드를 그대로 표시합니다. 값이 없는 필드는 <em>(없음)</em>으로 표기합니다.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>필드</th><th>값</th><th><span class="sr">복사</span></th></tr>
+        </thead>
+        <tbody id="locBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="rise d4">
+    <p class="sec-no">03 — 쿼리 파라미터</p>
+    <h2>Query Parameters</h2>
+    <p class="sec-desc">
+      쿼리스트링을 키/값으로 분해합니다. 값은 디코딩된 형태로 표시하며, 복사 시에도 디코딩된 값이 복사됩니다.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Key</th><th>Value</th><th><span class="sr">복사</span></th></tr>
+        </thead>
+        <tbody id="qsBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="rise d5">
+    <p class="sec-no">04 — 랜딩 컨텍스트</p>
+    <h2>참조 정보</h2>
+    <p class="sec-desc">
+      어디에서 이 페이지로 넘어왔는지, 어떤 환경에서 랜딩했는지 확인하기 위한 부가 정보입니다.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th><th><span class="sr">복사</span></th></tr>
+        </thead>
+        <tbody id="ctxBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="rise d6">
+    <p class="sec-no">05 — SDK</p>
+    <h2>Airbridge Web SDK</h2>
+    <div class="callout">
+      <strong>필수 옵션만으로 초기화되어 있습니다.</strong><br>
+      <code>app: 'airbridgedev'</code> · <code>webToken: '9d647d9c…'</code><br>
+      이벤트 전송, 배너, 딥링크, 트래킹 링크 생성 등 그 외 기능은 이 페이지에 구현하지 않았습니다.
+    </div>
+  </section>
+
+  <footer>
+    Airbridge PC Install Tracking · Landing URL Inspector
+  </footer>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var EMPTY = '(없음)';
+
+  /* ── 랜딩 시점의 값을 한 번만 스냅샷 ───────────────── */
+  var loc = window.location;
+  var snapshot = {
+    href:     loc.href,
+    protocol: loc.protocol,
+    host:     loc.host,
+    hostname: loc.hostname,
+    port:     loc.port,
+    origin:   loc.origin,
+    pathname: loc.pathname,
+    search:   loc.search,
+    hash:     loc.hash,
+    referrer: document.referrer,
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    screen:   window.screen.width + ' × ' + window.screen.height,
+    viewport: window.innerWidth + ' × ' + window.innerHeight,
+    landedAt: new Date().toISOString()
+  };
+
+  /* ── 클립보드 ──────────────────────────────────── */
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) { clearTimeout(toastTimer); }
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 1800);
+  }
+
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copy(text, btn, label) {
+    function done(ok) {
+      if (ok) {
+        toast('복사 완료 · ' + label);
+        if (btn) {
+          var prev = btn.getAttribute('data-prev-label') || btn.textContent;
+          btn.setAttribute('data-prev-label', prev);
+          btn.textContent = '복사됨';
+          btn.classList.add('is-done');
+          setTimeout(function () {
+            btn.textContent = prev;
+            btn.classList.remove('is-done');
+          }, 1400);
+        }
+      } else {
+        toast('복사 실패 — 직접 선택해 복사해 주세요');
+      }
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () {
+        done(legacyCopy(text));
+      });
+    } else {
+      done(legacyCopy(text));
+    }
+  }
+
+  /* ── 렌더 헬퍼 ─────────────────────────────────── */
+  function row(tbody, key, value, copyLabel) {
+    var tr = document.createElement('tr');
+
+    var tdK = document.createElement('td');
+    tdK.className = 'k';
+    tdK.textContent = key;
+
+    var tdV = document.createElement('td');
+    tdV.className = 'v';
+    if (value === '' || value === null || value === undefined) {
+      var em = document.createElement('span');
+      em.className = 'empty';
+      em.textContent = EMPTY;
+      tdV.appendChild(em);
+    } else {
+      tdV.textContent = value;
+    }
+
+    var tdA = document.createElement('td');
+    tdA.className = 'act';
+    if (value !== '' && value !== null && value !== undefined) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn-mini';
+      b.textContent = '복사';
+      b.setAttribute('aria-label', key + ' 값 복사');
+      b.addEventListener('click', function () { copy(String(value), b, copyLabel || key); });
+      tdA.appendChild(b);
+    }
+
+    tr.appendChild(tdK);
+    tr.appendChild(tdV);
+    tr.appendChild(tdA);
+    tbody.appendChild(tr);
+  }
+
+  /* ── 01 전체 URL ──────────────────────────────── */
+  var fullUrlEl = document.getElementById('fullUrl');
+  var qIndex = snapshot.href.indexOf('?');
+  if (qIndex === -1) {
+    fullUrlEl.textContent = snapshot.href;
+  } else {
+    fullUrlEl.textContent = snapshot.href.slice(0, qIndex);
+    var q = document.createElement('span');
+    q.className = 'q';
+    q.textContent = snapshot.href.slice(qIndex);
+    fullUrlEl.appendChild(q);
+  }
+
+  /* ── 02 Location 분해 ─────────────────────────── */
+  var locBody = document.getElementById('locBody');
+  ['protocol', 'host', 'hostname', 'port', 'origin', 'pathname', 'search', 'hash'].forEach(function (k) {
+    row(locBody, k, snapshot[k]);
+  });
+
+  /* ── 03 쿼리 파라미터 ─────────────────────────── */
+  var qsBody = document.getElementById('qsBody');
+  var params = [];
+  if (snapshot.search && snapshot.search.length > 1) {
+    var usp = new URLSearchParams(snapshot.search);
+    usp.forEach(function (v, k) { params.push([k, v]); });
+  }
+  if (params.length === 0) {
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.colSpan = 3;
+    td.className = 'v';
+    var em = document.createElement('span');
+    em.className = 'empty';
+    em.textContent = '쿼리 파라미터가 없습니다.';
+    td.appendChild(em);
+    tr.appendChild(td);
+    qsBody.appendChild(tr);
+  } else {
+    params.forEach(function (p) { row(qsBody, p[0], p[1]); });
+  }
+
+  /* ── 04 랜딩 컨텍스트 ─────────────────────────── */
+  var ctxBody = document.getElementById('ctxBody');
+  row(ctxBody, 'referrer', snapshot.referrer);
+  row(ctxBody, 'landedAt', snapshot.landedAt);
+  row(ctxBody, 'language', snapshot.language);
+  row(ctxBody, 'screen', snapshot.screen);
+  row(ctxBody, 'viewport', snapshot.viewport);
+  row(ctxBody, 'userAgent', snapshot.userAgent);
+
+  /* ── 복사 버튼 (전체 URL / 전체 정보) ──────────── */
+  document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      copy(snapshot.href, btn, '전체 URL');
+    });
+  });
+
+  document.getElementById('copyAll').addEventListener('click', function () {
+    var lines = [];
+    lines.push('# Airbridge PC Install Tracking — Landing URL');
+    lines.push('');
+    lines.push('[Full URL]');
+    lines.push(snapshot.href);
+    lines.push('');
+    lines.push('[Location]');
+    ['protocol', 'host', 'hostname', 'port', 'origin', 'pathname', 'search', 'hash'].forEach(function (k) {
+      lines.push(k + ': ' + (snapshot[k] === '' ? EMPTY : snapshot[k]));
+    });
+    lines.push('');
+    lines.push('[Query Parameters]');
+    if (params.length === 0) {
+      lines.push(EMPTY);
+    } else {
+      params.forEach(function (p) { lines.push(p[0] + ': ' + p[1]); });
+    }
+    lines.push('');
+    lines.push('[Context]');
+    lines.push('referrer: ' + (snapshot.referrer === '' ? EMPTY : snapshot.referrer));
+    lines.push('landedAt: ' + snapshot.landedAt);
+    lines.push('language: ' + snapshot.language);
+    lines.push('screen: ' + snapshot.screen);
+    lines.push('viewport: ' + snapshot.viewport);
+    lines.push('userAgent: ' + snapshot.userAgent);
+
+    copy(lines.join('\n'), this, '전체 정보');
+  });
+})();
+</script>
+
+</body>
+</html>
