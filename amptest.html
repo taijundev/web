@@ -177,12 +177,52 @@
     }
     .btn-send:hover { background: var(--yonsei-mid); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,51,127,.22); }
     .btn-send:active { transform: translateY(0); }
+
+    .inline-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-set {
+      background: var(--yonsei-light);
+      color: var(--yonsei);
+      border: 1px solid var(--yonsei-line);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 18px;
+      white-space: nowrap;
+    }
+    .btn-set:hover { background: #dbe6f5; }
+
+    .hint {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-faint);
+      margin: 10px 0 0;
+      word-break: break-all;
+    }
+    .hint b { color: var(--yonsei); font-weight: 600; }
+
+    @media (max-width: 480px) {
+      .inline-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <main class="wrap">
     <p class="eyebrow">Amplitude · Web SDK</p>
     <h1><span class="accent">Amplitude</span> Web SDK</h1>
+
+    <div class="card">
+      <label class="field-label" for="userId">User ID</label>
+      <div class="inline-row">
+        <input type="text" id="userId" placeholder="예: U202607010001">
+        <button type="button" class="btn-set" id="setUserId">Set User ID</button>
+      </div>
+      <p class="hint" id="currentUserId">current user_id: —</p>
+    </div>
 
     <div class="card">
       <label class="field-label" for="eventName">Event Name</label>
@@ -238,9 +278,9 @@
 
     document.getElementById('addProp').addEventListener('click', addPropRow);
 
-    // ── Amplitude Web SDK — Initialize (Option 4: init with user ID + options) ──
+    // ── Amplitude Web SDK — Initialize (init with options; user ID 는 Set User ID 버튼으로 설정) ──
     var AMPLITUDE_API_KEY = 'c9d6c776f682045c5a2456782659cb49';
-    amplitude.init(AMPLITUDE_API_KEY, 'U202607010001', {
+    amplitude.init(AMPLITUDE_API_KEY, {
       autocapture: {
         attribution: true,
         pageViews: true,
@@ -254,6 +294,36 @@
         frustrationInteractions: false
       }
     });
+
+    // ── Set User ID ──
+    var userIdInput = document.getElementById('userId');
+    var currentUserIdEl = document.getElementById('currentUserId');
+
+    function renderCurrentUserId() {
+      var id = amplitude.getUserId();
+      currentUserIdEl.innerHTML = 'current user_id: <b>' + (id ? id : '—') + '</b>';
+    }
+
+    function applyUserId() {
+      var userId = userIdInput.value.trim();
+
+      if (!userId) {
+        alert('User ID 를 입력해주세요.');
+        return;
+      }
+
+      // Amplitude 에 User ID 전송
+      amplitude.setUserId(userId);
+      renderCurrentUserId();
+      console.log('[Amplitude] setUserId:', userId);
+    }
+
+    document.getElementById('setUserId').addEventListener('click', applyUserId);
+    userIdInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') applyUserId();
+    });
+
+    renderCurrentUserId();
 
     // ── Send Event ──
     document.getElementById('sendEvent').addEventListener('click', function () {
