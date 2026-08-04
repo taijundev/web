@@ -34,6 +34,7 @@ Web Experiment 를 만들 때 타겟 URL 로 이 주소를 쓰면 로컬 서버 
 | `apiKey` | (설정됨) | Amplitude **프로젝트 API Key** |
 | `dataCenter` | `'us'` | `'us'` → `cdn.amplitude.com` / `'eu'` → `cdn.eu.amplitude.com` |
 | `storageKey` | `'ampExpTest.identity'` | ID 저장 localStorage 키 |
+| `minIdLength` | `5` | HTTP V2 API 의 ID 최소 길이. 팝업 검증 + `options.min_id_length` |
 | `maskUntilReady` | `true` | variant 적용까지 페이지 마스킹(안티 플리커) |
 | `maskGraceMs` | `250` | 스크립트 onload 후 variant 적용 대기 |
 | `maskTimeoutMs` | `3000` | 마스크 강제 해제 안전장치 |
@@ -153,20 +154,57 @@ ID 는 `localStorage["ampExpTest.identity"]` 에 저장된다. 값이 있으면 
 __expTest.reset()
 ```
 
-### `track()` — 비워둠
+### `track()` — HTTP V2 API 로 노출 이벤트 전송
 
-요구사항대로 전송 코드를 넣지 않았다. 실제 연동 시:
+**Custom Integration 에서는 Amplitude 가 노출 이벤트를 직접 보내지 않는다.**
+`track()` 이 유일한 전송 경로다. 비워두면 실험 분석 지표가 집계되지 않는다.
 
-```js
-track: (event) => {
-  analytics.track(event.eventType, event.eventProperties);
-  return true;
-}
+`track()` 이 받는 객체 (실측):
+
+```json
+{ "eventType": "$impression",
+  "eventProperties": {
+    "flag_key": "babitalk-web-exp-test",
+    "experiment_key": "exp-1",
+    "variant": "control",
+    "metadata": { "evaluationMode": "local", "segmentName": "All Other Users",
+                  "url": "https://taijundev.github.io/web/babitalk-web-exp/", … },
+    "time": 1785840560456 } }
 ```
 
-**`return true` 를 유지할 것.** 문서상 `false` 를 반환하면 Amplitude 가 이벤트를
-보관해 두고 일정 간격으로 재시도한다. 보낼 곳이 없는 상태에서 `false` 를 반환하면
-재시도가 끝없이 쌓인다.
+**`user_id` / `device_id` 는 들어있지 않다.** `getUser()` 값을 직접 붙여야 한다.
+`sendImpression()` 이 이걸 조립해 [HTTP V2 API](https://amplitude.com/docs/apis/analytics/http-v2) 로 POST 한다.
+
+```
+POST https://api2.amplitude.com/2/httpapi     (EU: api.eu.amplitude.com)
+Content-Type: application/json
+
+{ "api_key": "…",
+  "options": { "min_id_length": 5 },
+  "events": [{
+    "event_type": "$impression",
+    "user_id": "…", "device_id": "…",      ← getUser() 에서 붙임
+    "time": 1785844400447,
+    "insert_id": "$impression:flag:variant:device:time",
+    "event_properties": { flag_key, experiment_key, variant, metadata, time },
+    "platform": "Web", "user_agent": "…" }] }
+```
+
+구현 세부:
+
+- **`options.min_id_length: 5`** — HTTP V2 는 기본적으로 5자 미만 `user_id`/`device_id` 를
+  **이벤트에서 제거한다.** 유저가 붙지 않은 이벤트가 조용히 쌓이는 게 최악의
+  실패 모드라, 팝업에서도 같은 길이로 검증하고 요청에도 값을 명시해 일치시킨다.
+- **`insert_id`** — `eventType:flag_key:variant:device_id:time` 조합. 서버측 중복
+  제거(7일)로, 재시도돼도 한 번만 집계된다.
+- **`keepalive: true`** — 노출 직후 페이지를 떠나도 요청이 끊기지 않는다.
+- **`event_properties` 는 그대로 전달** — Amplitude 가 수집 시 `flag_key` /
+  `variant` / `experiment_key` 를 `[Experiment] Flag Key` / `Variant` /
+  `Experiment Key` 로 변환한다.
+- **반환값** — dispatch 에 성공하면 `true`(Amplitude 가 이벤트 폐기), `apiKey`·
+  identity 가 없거나 dispatch 자체가 실패하면 `false`(Amplitude 가 보관·재시도).
+  fetch 는 비동기라 HTTP 응답 결과로 반환값을 바꿀 수는 없다 — 응답은 콘솔과
+  디버그 패널의 `HTTP V2` 행에 표시된다.
 
 ## 안티 플리커
 
@@ -191,8 +229,9 @@ track: (event) => {
 | `setup()` | 호출 횟수 · resolve 시점 |
 | `getUser()` | **Amplitude 가 실제로 호출했는지** |
 | `track()` | 호출 횟수 · 마지막 `eventType` |
+| `HTTP V2` | 전송 결과 (`200 · 1 ingested` / 오류 코드 / `전송 중…`) |
 
-`getUser()` / `track()` 카운터가 핵심 관찰 포인트다.
+`getUser()` / `track()` / `HTTP V2` 가 핵심 관찰 포인트다.
 
 콘솔에서 직접 확인하려면:
 
@@ -252,11 +291,52 @@ addContext(client.getUser()) →
 `web_exp_id_v2` 유저다). `addContext()` 가 `integrationManager.getUser()` = 우리
 `getUser()` 를 병합해 넣고, `evaluate()` 는 이 병합 결과를 쓴다.
 
-## 알아둘 것
+## 노출 이벤트가 안 잡힐 때
 
-- **이 프로젝트에 아직 실험이 없다.** `webExperiment.getExperimentClient().all()` 이
-  `{}` 를 반환한다. variant 가 실제로 적용되는지 보려면 Amplitude 에서 Web
-  Experiment 를 만들고 타겟 URL 에 `http://localhost:4173/` 를 넣어야 한다.
+실험 `babitalk-web-exp-test` (`exp-1`) 기준으로 확인된 사항들.
+
+**1. 페이지 조건이 GitHub Pages URL 만 매칭한다.** 번들에 인라인된 page object:
+
+```
+^https:\/\/taijundev\.github\.io\/web\/babitalk-web-exp\/?(\?.*)?(#.*)?$
+```
+
+| 테스트 위치 | `activePages` | mutation | `track()` |
+|---|---|---|---|
+| `https://taijundev.github.io/web/babitalk-web-exp/` | `["babitalk-web-exp-test"]` | 적용됨 | 1회 |
+| `http://localhost:4173/` | `[]` | 없음 | **0회** |
+
+로컬에서 노출을 발생시키려면 Amplitude 페이지 설정에 `http://localhost:4173/` 를
+추가해야 한다. 대시보드 설정이라 코드로 우회할 수 없다.
+
+**2. 버킷팅이 팝업 ID 를 쓰지 않는다.** 플래그의 버킷 설정:
+
+```json
+{ "selector": ["context", "user", "web_exp_id_v2"],
+  "salt": "6a3oGsnz",
+  "allocations": [{ "range": [0, 100],
+    "distributions": [{"variant":"control","range":[0,21474837]},
+                      {"variant":"treatment","range":[21474836,42949673]}] }] }
+```
+
+100% 할당 / control·treatment 50:50 인데 **버킷 기준이 Amplitude 자체
+`web_exp_id_v2`** 다. 팝업의 `device_id`·`user_id` 는 variant 결정에 영향이 없다.
+`ID 초기화` 는 `ampExpTest.identity` 만 지우고 `EXP_c9d6c776f6` 은 남기므로,
+device_id 를 바꿔도 같은 variant 가 나온다. 팝업 ID 로 버킷팅하려면 Amplitude
+실험 설정에서 버킷 셀렉터를 `device_id` 로 바꿔야 한다.
+
+**3. `track()` 이 비어 있으면 이벤트가 전송되지 않는다.** 지금은 구현되어 있다.
+디버그 패널 `HTTP V2` 행이 `200 · 1 ingested` 인지 확인한다.
+
+Amplitude 자체 저장 키(참고):
+
+```
+EXP_c9d6c776f6                       {"web_exp_id":"…","web_exp_id_v2":"…"}
+EXP_c9d6c776f6_DEFAULT_USER_PROVIDER {"first_seen":"…"}
+EXP_unsent_$default_instance         []      ← track() 이 false 를 반환한 이벤트가 쌓임
+```
+
+## 알아둘 것
 - 이미지는 전부 CSS 로 만든 플레이스홀더다. 바비톡의 실제 사진·배너를 쓰지 않았고,
   레이아웃·타이포·색만 스크린샷을 따랐다.
 - 외부 CDN 의존이 없다(Amplitude 스크립트 제외). 폰트는 Pretendard 가 설치돼 있으면

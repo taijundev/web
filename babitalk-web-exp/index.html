@@ -49,6 +49,11 @@
     // 이 키를 지우면 팝업이 다시 뜬다.
     storageKey: 'ampExpTest.identity',
 
+    // HTTP V2 API 의 ID 최소 길이. 이보다 짧으면 Amplitude 가 user_id /
+    // device_id 를 이벤트에서 제거한다. 팝업 검증과 요청의
+    // options.min_id_length 에 함께 쓰인다. 짧은 ID 로 테스트하려면 낮춘다.
+    minIdLength: 5,
+
     // true 면 variant 적용이 끝날 때까지 페이지를 마스킹한다(안티 플리커).
     // false 면 대조군 화면이 먼저 보이고 나중에 variant 가 덮어씌워진다.
     maskUntilReady: true,

@@ -52,6 +52,7 @@
     apiKey: '',
     dataCenter: 'us',
     storageKey: 'ampExpTest.identity',
+    minIdLength: 5,
     maskUntilReady: true,
     maskGraceMs: 250,
     maskTimeoutMs: 3000,
@@ -67,6 +68,14 @@
     return 'https://' + host + '/script/' + cfg.apiKey + '.experiment.js';
   }
 
+  // HTTP V2 API 수집 엔드포인트
+  // https://amplitude.com/docs/apis/analytics/http-v2
+  function eventEndpoint() {
+    return cfg.dataCenter === 'eu'
+      ? 'https://api.eu.amplitude.com/2/httpapi'
+      : 'https://api2.amplitude.com/2/httpapi';
+  }
+
   // 디버그 패널에 노출할 상태. 커스텀 인테그레이션이 실제로 호출됐는지
   // 확인하는 게 이 테스트 페이지의 핵심 관찰 포인트다.
   var state = {
@@ -78,6 +87,7 @@
     getUserCalls: 0,
     trackCalls: 0,
     lastTrack: null,
+    lastSend: null,            // { ok: true|false|null, text: string }
   };
 
   // ── localStorage 래퍼 (프라이빗 모드 등에서 throw 하므로 방어) ──────────
@@ -167,7 +177,8 @@
               '<label class="expid__label" for="expid-user">user_id</label>',
               '<input class="expid__input" id="expid-user" type="text" autocomplete="off" ',
                 'spellcheck="false" placeholder="예: test-user-001">',
-              '<p class="expid__hint">Amplitude 에서 사용자를 식별하는 ID.</p>',
+              '<p class="expid__hint">Amplitude 에서 사용자를 식별하는 ID. ',
+                cfg.minIdLength, '자 이상 — HTTP V2 API 가 짧은 ID 를 제거한다.</p>',
             '</div>',
 
             '<div class="expid__field">',
@@ -207,6 +218,19 @@
           if (!userId || !deviceId) {
             errEl.textContent = 'user_id 와 device_id 를 모두 입력하세요.';
             (userId ? deviceInput : userInput).focus();
+            return;
+          }
+
+          // HTTP V2 API 는 기본적으로 5자 미만 ID 를 이벤트에서 제거한다.
+          // 여기서 막지 않으면 유저가 붙지 않은 노출 이벤트가 조용히 쌓인다.
+          var shortUser = userId.length < cfg.minIdLength;
+          var shortDevice = deviceId.length < cfg.minIdLength;
+          if (shortUser || shortDevice) {
+            userInput.setAttribute('aria-invalid', String(shortUser));
+            deviceInput.setAttribute('aria-invalid', String(shortDevice));
+            errEl.textContent = cfg.minIdLength + '자 이상 입력하세요. '
+              + '더 짧으면 Amplitude 가 ID 를 이벤트에서 제거합니다.';
+            (shortUser ? userInput : deviceInput).focus();
             return;
           }
 
@@ -253,6 +277,88 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════
+  // 노출 이벤트 전송 — Amplitude HTTP V2 API
+  // https://amplitude.com/docs/apis/analytics/http-v2
+  //
+  // track() 이 받는 객체 (실측):
+  //   { eventType: "$impression",
+  //     eventProperties: { flag_key, experiment_key, variant, metadata, time } }
+  //
+  // user_id / device_id 는 들어있지 않다. getUser() 값을 직접 붙여야 한다.
+  // ══════════════════════════════════════════════════════════════════════
+  function sendImpression(event) {
+    var id = state.identity;
+
+    // 보낼 수 없는 상황이면 false 를 반환해 Amplitude 가 보관·재시도하게 한다.
+    if (!cfg.apiKey) { warn('apiKey 가 없어 노출 이벤트를 전송할 수 없습니다.'); return false; }
+    if (!id)         { warn('identity 가 없어 노출 이벤트를 전송할 수 없습니다.'); return false; }
+
+    var props = (event && event.eventProperties) || {};
+    var time = typeof props.time === 'number' ? props.time : Date.now();
+
+    var payload = {
+      api_key: cfg.apiKey,
+
+      // user_id / device_id 는 기본 5자 이상이어야 한다. 미달이면 Amplitude 가
+      // 해당 ID 를 이벤트에서 제거해 버려서, 유저가 붙지 않은 이벤트가 쌓인다.
+      // 팝업에서도 같은 길이로 검증하므로 값을 명시해 일치시킨다.
+      options: { min_id_length: cfg.minIdLength },
+
+      events: [{
+        event_type: event.eventType,
+        user_id: id.user_id,
+        device_id: id.device_id,
+        time: time,
+
+        // 서버측 중복 제거(7일). 같은 노출이 재시도돼도 한 번만 집계된다.
+        insert_id: [event.eventType, props.flag_key, props.variant, id.device_id, time].join(':'),
+
+        // flag_key / variant / experiment_key 가 그대로 들어간다. Amplitude 가
+        // 수집 시 [Experiment] Flag Key / Variant / Experiment Key 로 변환한다.
+        event_properties: props,
+
+        platform: 'Web',
+        user_agent: navigator.userAgent,   // 브라우저·OS 컬럼 파싱용
+      }],
+    };
+
+    try {
+      // keepalive: 노출 직후 페이지를 떠나도 요청이 끊기지 않게 한다.
+      window.fetch(eventEndpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          if (res.ok && body.code === 200) {
+            state.lastSend = { ok: true, text: '200 · ' + (body.events_ingested != null
+              ? body.events_ingested + ' ingested' : 'success') };
+            log('HTTP V2 전송 성공', body);
+          } else {
+            state.lastSend = { ok: false, text: (body.code || res.status) + ' · ' +
+              (body.error || body.message || res.statusText || 'failed') };
+            warn('HTTP V2 전송 거부', res.status, body);
+          }
+          renderDebug();
+        });
+      }).catch(function (e) {
+        state.lastSend = { ok: false, text: 'network error' };
+        warn('HTTP V2 전송 실패', e);
+        renderDebug();
+      });
+    } catch (e) {
+      state.lastSend = { ok: false, text: 'dispatch 실패' };
+      warn('HTTP V2 dispatch 실패', e);
+      return false;   // 재시도 요청
+    }
+
+    state.lastSend = { ok: null, text: '전송 중…' };
+    log('노출 이벤트 전송', event.eventType, props.flag_key + '=' + props.variant);
+    return true;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
   // IntegrationPlugin 구현
   // ══════════════════════════════════════════════════════════════════════
   window.experimentIntegration = {
@@ -292,26 +398,21 @@
     },
 
     /**
-     * 서드파티 분석 도구로 노출(impression) 이벤트를 전달하는 자리.
+     * 노출(impression) 이벤트를 Amplitude HTTP V2 API 로 전송한다.
      *
-     * ── 요구사항에 따라 비워둠 ──
-     * 실제 전송 코드를 넣을 때는 아래 형태가 된다:
-     *     analytics.track(event.eventType, event.eventProperties);
+     * Custom Integration 에서는 Amplitude 가 노출 이벤트를 직접 보내지 않는다.
+     * 이 함수가 유일한 전송 경로다. 비워두면 실험 분석 지표가 집계되지 않는다.
      *
-     * return true  : 전송 성공으로 간주하고 Amplitude 가 이벤트를 폐기한다.
+     * return true  : dispatch 성공 → Amplitude 가 이벤트를 폐기한다.
      * return false : Amplitude 가 이벤트를 보관하고 일정 간격으로 재시도한다.
-     *
-     * 지금은 전송 대상이 없으므로 true 를 반환한다. false 를 반환하면
-     * 보낼 곳도 없는 이벤트가 무한히 재시도된다.
      */
     track: function (event) {
       state.trackCalls++;
       state.lastTrack = event && event.eventType ? event.eventType : '(unknown)';
+
+      var dispatched = sendImpression(event);
       renderDebug();
-
-      // TODO: 서드파티 전송 구현
-
-      return true;
+      return dispatched;
     },
   };
 
@@ -411,6 +512,12 @@
           '</dd></div>',
           '<div class="expid-debug__row"><dt>track()</dt><dd>',
             state.trackCalls ? '<span class="expid-debug__ok">' + state.trackCalls + '회 · ' + esc(state.lastTrack) + '</span>' : '<span class="expid-debug__wait">미호출</span>',
+          '</dd></div>',
+          '<div class="expid-debug__row"><dt>HTTP V2</dt><dd>',
+            state.lastSend
+              ? '<span class="expid-debug__' + (state.lastSend.ok === true ? 'ok' : state.lastSend.ok === false ? 'bad' : 'wait') + '">'
+                + esc(state.lastSend.text) + '</span>'
+              : '<span class="expid-debug__wait">전송 없음</span>',
           '</dd></div>',
         '</dl>',
         '<button type="button" class="expid-debug__reset" id="expid-dbg-reset">ID 초기화 후 새로고침</button>',
