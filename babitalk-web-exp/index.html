@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바비톡 — Amplitude Web Experiment 테스트</title>
+<meta name="description" content="Amplitude Web Experiment(Custom Integration) 동작 확인용 테스트 페이지">
+
+<link rel="stylesheet" href="assets/styles.css">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     Amplitude Web Experiment
+     ─────────────────────────────────────────────────────────────────────
+     문서: https://amplitude.com/docs/web-experiment/implementation
+
+     문서 요구사항:
+       "Implement the IntegrationPlugin interface and set the
+        experimentIntegration window variable. Place the plugin script
+        BEFORE the Web Experiment script tag."
+
+     ── 왜 Web Experiment 스크립트 태그가 여기 없는가 ────────────────────
+     experiment-integration.js 가 ID 확정 후에 직접 주입한다.
+     문서의 async 안티 플리커 스니펫과 같은 방식이다.
+
+     이유: 배포된 스크립트 번들(IntegrationManager)을 확인한 결과,
+     setup() 의 Promise 를 기다리는 경로가 제한적이다.
+       - 원격 플래그 fetch  : addContextOrWait() → ready() 대기  ✅
+       - 로컬 플래그 평가    : addContext()      → 대기하지 않음  ❌
+       - start() 전체       : initialFlags 에 holdout-/mutex- 키가 있을 때만 대기
+     정적 태그로 두면 팝업이 열려 있는 동안 applyVariants() 가 실행돼
+     로컬 평가 실험이 user_id/device_id 없이 버킷팅될 수 있다.
+     스크립트 자체를 ID 확정 후에 로드하면 모든 경로에서 순서가 보장된다.
+
+     setup() 도 문서 명세대로 구현해 두었다(이 구조에서는 즉시 resolve 된다).
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<script>
+  window.EXP_CONFIG = {
+    // ── Amplitude 프로젝트 API Key ──
+    // Settings → Projects → [프로젝트] → General → API Key
+    // (Data → Sources 에서 보이는 값, HTTP V2 API 의 api_key 와 동일)
+    // Experiment 의 Deployment Key(client-…) 가 아니다.
+    apiKey: 'c9d6c776f682045c5a2456782659cb49',
+
+    // 'us' → cdn.amplitude.com / 'eu' → cdn.eu.amplitude.com
+    dataCenter: 'us',
+
+    // 팝업으로 받은 user_id / device_id 를 저장할 localStorage 키.
+    // 이 키를 지우면 팝업이 다시 뜬다.
+    storageKey: 'ampExpTest.identity',
+
+    // true 면 variant 적용이 끝날 때까지 페이지를 마스킹한다(안티 플리커).
+    // false 면 대조군 화면이 먼저 보이고 나중에 variant 가 덮어씌워진다.
+    maskUntilReady: true,
+
+    // 스크립트 onload 후 variant 적용을 기다리는 시간(ms).
+    maskGraceMs: 250,
+
+    // 마스크 강제 해제 실패 안전장치(ms). 스크립트 주입 시점부터 카운트.
+    maskTimeoutMs: 3000,
+
+    // 우측 하단 디버그 패널 표시 여부. 테스트 전용.
+    debugPanel: true,
+  };
+</script>
+
+<!-- Custom Integration 플러그인.
+     window.experimentIntegration 을 정의하고, ID 가 확정되면
+     Web Experiment 스크립트를 주입한다. -->
+<script src="assets/experiment-integration.js"></script>
+
+<script defer src="assets/app.js"></script>
+</head>
+
+<body>
+
+<!-- ─────────────────────────── 헤더 ─────────────────────────── -->
+<header class="site-header" id="site-header">
+  <div class="site-header__inner">
+    <a class="logo" href="#" id="logo" aria-label="바비톡 홈">
+      <svg class="logo__mark" viewBox="0 0 34 24" aria-hidden="true">
+        <path d="M8.4 1.2c3.6 0 6.2 2.5 6.2 6.3v9c0 3.8-2.6 6.3-6.2 6.3S2.2 20.3 2.2 16.5v-9c0-3.8 2.6-6.3 6.2-6.3Z"/>
+        <path d="M25.6 1.2c3.6 0 6.2 2.5 6.2 6.3v9c0 3.8-2.6 6.3-6.2 6.3s-6.2-2.5-6.2-6.3v-9c0-3.8 2.6-6.3 6.2-6.3Z"/>
+      </svg>
+      <span class="logo__text">바비톡</span>
+    </a>
+
+    <nav class="site-nav" aria-label="주요 메뉴">
+      <a href="#" class="site-nav__link is-active" data-nav="home">홈</a>
+      <a href="#" class="site-nav__link" data-nav="event">이벤트</a>
+      <a href="#" class="site-nav__link" data-nav="hospital">의사/병원</a>
+      <a href="#" class="site-nav__link" data-nav="community">커뮤니티</a>
+      <a href="#" class="site-nav__link" data-nav="beautylab">뷰티랩</a>
+    </nav>
+
+    <button type="button" class="btn-signin" id="btn-signin" data-exp-target="signin">
+      로그인 및 회원가입
+    </button>
+  </div>
+</header>
+
+<main class="page">
+  <div class="surface">
+
+    <!-- ───────────────────── 검색 ───────────────────── -->
+    <section class="search" aria-label="시술 검색">
+      <form class="search__form" id="search-form" role="search" onsubmit="return false">
+        <input class="search__input" id="search-input" type="search"
+               placeholder="톡한자 전용 팔자주름 실리프팅 특가" aria-label="검색어 입력">
+        <button class="search__submit" type="submit" aria-label="검색">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.5" cy="10.5" r="6.4"/>
+            <path d="m15.4 15.4 4.2 4.2"/>
+            <path class="sparkle" d="M19.2 3.6l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7Z"/>
+          </svg>
+        </button>
+      </form>
+
+      <div class="keywords" id="keywords">
+        <span class="keywords__label">인기 검색어</span>
+        <button type="button" class="chip">눈재수술</button>
+        <button type="button" class="chip">티타늄</button>
+        <button type="button" class="chip">인중축소</button>
+        <button type="button" class="chip">트임</button>
+        <button type="button" class="chip">쥬베룩</button>
+        <button type="button" class="chip">실리프팅</button>
+        <button type="button" class="chip">눈</button>
+        <button type="button" class="chip">필러</button>
+      </div>
+    </section>
+
+    <!-- ───────────────────── 히어로 배너 ───────────────────── -->
+    <section class="hero" id="hero" aria-label="프로모션 배너" aria-roledescription="carousel">
+      <div class="hero__viewport">
+        <ul class="hero__track" id="hero-track">
+          <li class="hero__slide" data-tone="a" aria-hidden="false">
+            <div class="hero__copy">
+              <h2 class="hero__title">말랑말랑 자연 촉감<br>가슴 자신감 업!</h2>
+              <p class="hero__sub">가슴성형 인기 병원</p>
+            </div>
+            <div class="hero__art" aria-hidden="true">
+              <span class="hero__blob"></span>
+              <span class="hero__figure"></span>
+              <span class="hero__badge">가슴<br>BEST</span>
+            </div>
+          </li>
+          <li class="hero__slide" data-tone="b" aria-hidden="true">
+            <div class="hero__copy">
+              <h2 class="hero__title">5만원 이하 타임딜!<br>딱 3일간 초특가</h2>
+              <p class="hero__sub">이주의 시술 특가까지</p>
+            </div>
+            <div class="hero__art" aria-hidden="true">
+              <span class="hero__blob"></span>
+              <span class="hero__figure hero__figure--clock"></span>
+              <span class="hero__badge">타임<br>딜</span>
+            </div>
+          </li>
+          <li class="hero__slide" data-tone="c" aria-hidden="true">
+            <div class="hero__copy">
+              <h2 class="hero__title">첫 시술 걱정된다면<br>후기부터 확인!</h2>
+              <p class="hero__sub">실제 후기 12만건</p>
+            </div>
+            <div class="hero__art" aria-hidden="true">
+              <span class="hero__blob"></span>
+              <span class="hero__figure hero__figure--chat"></span>
+              <span class="hero__badge">후기<br>BEST</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <button type="button" class="hero__nav hero__nav--prev" id="hero-prev" aria-label="이전 배너">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <button type="button" class="hero__nav hero__nav--next" id="hero-next" aria-label="다음 배너">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+      <p class="hero__count" id="hero-count" aria-live="off">1 / 3</p>
+    </section>
+
+    <!-- ───────────────────── 카테고리 2열 ───────────────────── -->
+    <div class="cat-cols">
+      <section class="cat" id="cat-surgery" aria-labelledby="cat-surgery-title">
+        <div class="section-head">
+          <h2 class="section-head__title" id="cat-surgery-title">성형 이벤트</h2>
+          <button type="button" class="section-head__more" aria-label="성형 이벤트 전체보기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="cat__grid">
+          <button type="button" class="cat__item">추천<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">눈<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">코<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">지방흡입/이식<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">안면윤곽<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">가슴<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <button type="button" class="cat__expand" data-expand="cat-surgery">
+          더보기 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>
+        </button>
+      </section>
+
+      <section class="cat" id="cat-procedure" aria-labelledby="cat-procedure-title">
+        <div class="section-head">
+          <h2 class="section-head__title" id="cat-procedure-title">시술 이벤트</h2>
+          <button type="button" class="section-head__more" aria-label="시술 이벤트 전체보기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="cat__grid">
+          <button type="button" class="cat__item">추천<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">레이저리프팅<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">필러<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">윤곽/지방분해/지방추출<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">실리프팅<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="cat__item">보톡스<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <button type="button" class="cat__expand" data-expand="cat-procedure">
+          더보기 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>
+        </button>
+      </section>
+    </div>
+
+    <!-- ───────────────────── 인기 이벤트 ───────────────────── -->
+    <section class="events" id="popular-events" aria-labelledby="popular-events-title">
+      <div class="section-head section-head--wide">
+        <h2 class="section-head__title" id="popular-events-title">지금 많이 찾는 인기 이벤트</h2>
+        <button type="button" class="section-head__all">
+          전체보기 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <ul class="cards" id="event-cards">
+        <li class="card" data-event-id="1">
+          <a class="card__link" href="#">
+            <div class="card__thumb" data-tone="1">
+              <span class="card__thumb-badge">베스트<br>시술</span>
+              <span class="card__thumb-copy"><em>싹뺌주사</em><b>4.95<i>만원</i></b></span>
+            </div>
+            <h3 class="card__title">싹뺌주사_지방사멸주사</h3>
+            <p class="card__desc">에이탑뷰티클리닉_#윤곽주사#지방사멸주사#바디라인</p>
+            <p class="card__meta"><span>서울 강남역</span><span>에이탑뷰티클리닉</span></p>
+            <p class="card__price">
+              <b>49,500원</b><em>35%</em><small>VAT 포함</small>
+            </p>
+            <p class="card__rate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.6Z"/></svg>
+              <b>4.8</b><span>(209)</span>
+            </p>
+            <p class="card__kakao">카톡상담</p>
+          </a>
+        </li>
+
+        <li class="card" data-event-id="2">
+          <a class="card__link" href="#">
+            <div class="card__thumb" data-tone="2">
+              <span class="card__thumb-badge">조사시간<br>보장제</span>
+              <span class="card__thumb-copy"><em>인모드</em><b>FX<i>/FORMA</i></b></span>
+            </div>
+            <h3 class="card__title">오픈초특가 | 인모드 FX/포마 커스텀</h3>
+            <p class="card__desc">#인모드 #인모드FX #포마커스텀</p>
+            <p class="card__meta"><span>서울 마곡</span><span>디디한의원마곡</span></p>
+            <p class="card__price">
+              <b>42,900원</b><em>43%</em><small>VAT 포함</small>
+            </p>
+            <p class="card__rate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.6Z"/></svg>
+              <b>4.9</b><span>(118)</span>
+            </p>
+            <p class="card__kakao">카톡상담</p>
+          </a>
+        </li>
+
+        <li class="card" data-event-id="3">
+          <a class="card__link" href="#">
+            <div class="card__thumb" data-tone="3">
+              <span class="card__thumb-badge">문신<br>제거</span>
+              <span class="card__thumb-copy"><em>자고일어나면끝!</em><b>피코웨이<i>5만</i></b></span>
+            </div>
+            <h3 class="card__title">자고일어나면끝 문신제거</h3>
+            <p class="card__desc">통증에 대한 부담을 덜어낸 진담 피코웨이 문신제거</p>
+            <p class="card__meta"><span>서울 강남역</span><span>진담성형외과의원</span></p>
+            <p class="card__price">
+              <b>50,000원</b><em>44%</em><small>VAT 포함</small>
+            </p>
+            <p class="card__rate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.6Z"/></svg>
+              <b>5.0</b><span>(65)</span>
+            </p>
+            <p class="card__kakao">카톡상담</p>
+          </a>
+        </li>
+
+        <li class="card" data-event-id="4">
+          <a class="card__link" href="#">
+            <div class="card__thumb" data-tone="4">
+              <span class="card__thumb-badge">국내<br>최초</span>
+              <span class="card__thumb-copy"><em>인비절라인 퍼플 다이아몬드</em><b>99<i>만원</i></b></span>
+            </div>
+            <h3 class="card__title">치아교정 id 인비절라인</h3>
+            <p class="card__desc">7주만에 완성되는 #투명교정 #치아교정 #인비절라인</p>
+            <p class="card__meta"><span>서울 신사</span><span>아이디치과의원</span></p>
+            <p class="card__price">
+              <b>990,000원</b><em>49%</em>
+            </p>
+            <p class="card__rate">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.6Z"/></svg>
+              <b>4.9</b><span>(336)</span>
+            </p>
+            <p class="card__kakao">카톡상담</p>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p>Amplitude Web Experiment 동작 확인용 테스트 페이지입니다. 실제 서비스가 아닙니다.</p>
+</footer>
+
+</body>
+</html>
