@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — 신규 버전 + 방안2 · Amplitude 방안2 검증</title>
+<link rel="stylesheet" href="common.css">
+<script src="config.js" onerror="window.AMP_TEST_CONFIG=window.AMP_TEST_CONFIG||{}"></script>
+</head>
+<body>
+<main>
+  <p class="eyebrow rise">Amplitude Web SDK · De-identification Option 2</p>
+  <h1 class="rise">Phase 2 — 신규 버전 + <span class="accent">방안2</span></h1>
+  <p class="lede rise">
+    <code>De-identification Test 2</code> 프로젝트 API Key 로 초기화한다.
+    최초 실행이면 웹이 자체 캐싱해 둔 원문 User ID 를 읽어 <strong>가명화한 값만</strong> Amplitude 에 전달하고,
+    2회차부터는 <code>setUserId()</code> 없이 신규 쿠키에 캐싱된 가명 ID 가 유지되는지 확인한다.
+  </p>
+
+  <div class="callout rise">
+    API Key 가 바뀌면 identity 쿠키 이름(<code>AMP_{key 앞 10자}</code>)이 달라지므로,
+    신규 SDK 는 <strong>구 Key 의 쿠키를 읽지 않는다</strong>(삭제가 아니라 미참조 격리).
+    부수 효과로 <code>device_id</code> 가 새로 생성된다.
+  </div>
+
+  <h2><span class="num">01</span>실행 결과</h2>
+  <div class="card">
+    <table class="kv" id="status"><tbody></tbody></table>
+  </div>
+
+  <h2><span class="num">02</span>로그</h2>
+  <pre class="log" id="log">초기화 중…</pre>
+
+  <p class="nav">
+    → <a href="phase1.html">Phase 1 로 돌아가기</a> ·
+    <a href="#" id="reset">테스트 상태 초기화 (localStorage 플래그 삭제)</a>
+  </p>
+</main>
+
+<script type="module">
+import {
+  RAW_USER_ID, APP_USER_ID_KEY, FIRST_RUN_FLAG_KEY, getConfig, ampCookieName, ampCookies,
+  loadAmplitude, initOptions, pseudonymize, renderStatus, pill, log, publish, fail,
+} from "./common.js";
+
+document.querySelector("#reset").addEventListener("click", (e) => {
+  e.preventDefault();
+  localStorage.removeItem(FIRST_RUN_FLAG_KEY);
+  location.reload();
+});
+
+(async () => {
+  try {
+    const cfg = getConfig();
+    if (!cfg.apiKey2) throw new Error("API_KEY_2 가 없습니다. config.js 를 만들거나 ?key2=... 로 주입하세요.");
+
+    log("① SDK 로드");
+    const amplitude = await loadAmplitude();
+
+    const firstRunDone = localStorage.getItem(FIRST_RUN_FLAG_KEY);
+    const cachedRaw = localStorage.getItem(APP_USER_ID_KEY);
+    log("② 최초 실행 판단: " + FIRST_RUN_FLAG_KEY + "=" + (firstRunDone ?? "(없음)") +
+        ", " + APP_USER_ID_KEY + "=" + (cachedRaw ? "(있음)" : "(없음)"));
+
+    let branch, pseudoId = null;
+
+    if (!firstRunDone && cachedRaw) {
+      /* ── 분기 A: 최초 실행 & 자체 캐싱 원문 존재 ─────────────── */
+      branch = "A";
+      log("③ [분기 A] 자체 캐싱 원문을 가명화");
+      pseudoId = await pseudonymize(cachedRaw);
+      log("   pseudonymize(원문) = " + pseudoId + "   ← 원문은 네트워크로 나가지 않는다");
+
+      log("④ init(API_KEY_2, { userId: pseudoId })  cookie=" + ampCookieName(cfg.apiKey2));
+      await amplitude.init(cfg.apiKey2, initOptions(cfg.serverZone, { userId: pseudoId })).promise;
+
+      localStorage.setItem(FIRST_RUN_FLAG_KEY, "1");
+      log("⑤ 최초 실행 플래그 기록");
+    } else {
+      /* ── 분기 B: 2회차 이후 ───────────────────────────────── */
+      branch = "B";
+      if (!firstRunDone && !cachedRaw) {
+        log("③ [분기 B] 최초 실행이지만 자체 캐싱 원문이 없음 → 가명화 대상 없음 (Phase 1 을 먼저 실행하세요)");
+      } else {
+        log("③ [분기 B] 플래그 존재 → setUserId 호출 없이 init 만 수행");
+      }
+      log("④ init(API_KEY_2)  cookie=" + ampCookieName(cfg.apiKey2));
+      await amplitude.init(cfg.apiKey2, initOptions(cfg.serverZone)).promise;
+    }
+
+    log("⑥ track('phase2_test_event') + flush");
+    await amplitude.track("phase2_test_event").promise;
+    await amplitude.flush().promise;
+
+    const deviceId = amplitude.getDeviceId();
+    const userId = amplitude.getUserId();
+    const cookies = ampCookies();
+
+    renderStatus([
+      ["phase", pill("Phase 2 · 방안2", "good")],
+      ["실행 분기", pill(branch === "A" ? "A · 최초 실행 (가명화 수행)" : "B · 2회차 이후 (쿠키 캐싱)", branch === "A" ? "good" : "")],
+      ["api_key (앞 10자)", String(cfg.apiKey2).slice(0, 10) + "…"],
+      ["server_zone", cfg.serverZone],
+      ["자체 캐싱 원문 (전송 안 됨)", cachedRaw],
+      ["가명화 결과 (이번 로드)", pseudoId],
+      ["amplitude.getUserId()", userId],
+      ["amplitude.getDeviceId()", deviceId],
+      ["기대 identity 쿠키", ampCookieName(cfg.apiKey2)],
+      ["실제 AMP* 쿠키", cookies.join("\n") || "(없음)"],
+      ["전송 이벤트", "phase2_test_event"],
+    ]);
+
+    log("⑦ 완료. branch=" + branch + "  user_id=" + userId + "  device_id=" + deviceId);
+    publish({
+      phase: 2,
+      branch,
+      deviceId,
+      userId,
+      pseudoId,
+      cachedRaw,
+      rawUserId: RAW_USER_ID,
+      expectedCookie: ampCookieName(cfg.apiKey2),
+      cookies,
+    });
+  } catch (e) {
+    fail(e);
+  }
+})();
+</script>
+</body>
+</html>

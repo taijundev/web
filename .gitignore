@@ -1,0 +1,10 @@
+node_modules/
+package-lock.json
+
+# Amplitude de-identification test — real API keys must never be committed
+amp-deid-test/config.js
+
+# Playwright artifacts
+amp-deid-test/test-results/
+amp-deid-test/playwright-report/
+amp-deid-test/.profile/

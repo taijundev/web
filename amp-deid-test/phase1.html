@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 — 구버전 시뮬레이션 · Amplitude 방안2 검증</title>
+<link rel="stylesheet" href="common.css">
+<script src="config.js" onerror="window.AMP_TEST_CONFIG=window.AMP_TEST_CONFIG||{}"></script>
+</head>
+<body>
+<main>
+  <p class="eyebrow rise">Amplitude Web SDK · De-identification Option 2</p>
+  <h1 class="rise">Phase 1 — <span class="accent">구버전</span> 시뮬레이션</h1>
+  <p class="lede rise">
+    <code>De-identification Test 1</code> 프로젝트 API Key 로 초기화하고,
+    <strong>원문 User ID</strong> 를 <code>setUserId()</code> 로 Amplitude 에 전송한다.
+    동시에 웹 자체 <code>localStorage</code> 에도 원문을 캐싱해 둔다 — 이 캐시가 Phase 2(방안2)의 입력이 된다.
+  </p>
+
+  <div class="callout rise">
+    이 페이지는 <em>차단 대상</em>인 상태(원문 전송)를 의도적으로 재현한다.
+    Phase 2 에서 같은 브라우저 프로필로 이동해 원문이 더 이상 전송되지 않는지 확인한다.
+  </div>
+
+  <h2><span class="num">01</span>실행 결과</h2>
+  <div class="card">
+    <table class="kv" id="status"><tbody></tbody></table>
+  </div>
+
+  <h2><span class="num">02</span>로그</h2>
+  <pre class="log" id="log">초기화 중…</pre>
+
+  <p class="nav">→ <a href="phase2.html">Phase 2 (신규 버전 + 방안2) 로 이동</a></p>
+</main>
+
+<script type="module">
+import {
+  RAW_USER_ID, APP_USER_ID_KEY, getConfig, ampCookieName, ampCookies,
+  loadAmplitude, initOptions, renderStatus, pill, log, publish, fail,
+} from "./common.js";
+
+(async () => {
+  try {
+    const cfg = getConfig();
+    if (!cfg.apiKey1) throw new Error("API_KEY_1 이 없습니다. config.js 를 만들거나 ?key1=... 로 주입하세요.");
+
+    log("① SDK 로드");
+    const amplitude = await loadAmplitude();
+
+    log("② init(API_KEY_1)  cookie=" + ampCookieName(cfg.apiKey1) + "  zone=" + cfg.serverZone);
+    await amplitude.init(cfg.apiKey1, initOptions(cfg.serverZone)).promise;
+
+    log("③ 로그인 시뮬레이션: setUserId(원문)");
+    amplitude.setUserId(RAW_USER_ID);
+
+    log("④ 웹 자체 캐싱 시뮬레이션: localStorage['" + APP_USER_ID_KEY + "'] = 원문");
+    localStorage.setItem(APP_USER_ID_KEY, RAW_USER_ID);
+
+    log("⑤ track('phase1_test_event') + flush");
+    await amplitude.track("phase1_test_event").promise;
+    await amplitude.flush().promise;
+
+    const deviceId = amplitude.getDeviceId();
+    const userId = amplitude.getUserId();
+    const cookies = ampCookies();
+
+    renderStatus([
+      ["phase", pill("Phase 1 · 구버전", "warn")],
+      ["api_key (앞 10자)", String(cfg.apiKey1).slice(0, 10) + "…"],
+      ["server_zone", cfg.serverZone],
+      ["amplitude.getUserId()", userId],
+      ["amplitude.getDeviceId()", deviceId],
+      ["기대 identity 쿠키", ampCookieName(cfg.apiKey1)],
+      ["실제 AMP* 쿠키", cookies.join("\n") || "(없음)"],
+      ["localStorage['" + APP_USER_ID_KEY + "']", localStorage.getItem(APP_USER_ID_KEY)],
+      ["전송 이벤트", "phase1_test_event"],
+    ]);
+
+    log("⑥ 완료. user_id=" + userId + "  device_id=" + deviceId);
+    publish({
+      phase: 1,
+      deviceId,
+      userId,
+      rawUserId: RAW_USER_ID,
+      expectedCookie: ampCookieName(cfg.apiKey1),
+      cookies,
+    });
+  } catch (e) {
+    fail(e);
+  }
+})();
+</script>
+</body>
+</html>

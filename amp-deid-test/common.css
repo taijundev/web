@@ -1,0 +1,166 @@
+:root {
+  --bg:           #EDF1F8;
+  --surface:      #FFFFFF;
+  --surface-2:    #F6F9FD;
+  --ink:          #0A2545;
+  --ink-soft:     #46566E;
+  --ink-faint:    #8492A8;
+  --line:         #D5DEEC;
+  --yonsei:       #00337F;
+  --yonsei-mid:   #1E5FB0;
+  --yonsei-light: #E6EDF7;
+  --yonsei-line:  #C4D4EA;
+  --formula-bg:   #062A5E;
+  --formula-ink:  #EAF0FA;
+  --formula-acc:  #9DC2EE;
+  --good:         #1B7F5A;
+  --warn:         #B25A00;
+  --radius:       14px;
+  --maxw:         820px;
+
+  --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+  --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 48px 24px 96px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+main { max-width: var(--maxw); margin: 0 auto; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  margin: 0 0 12px;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--ink);
+  font-size: clamp(30px, 5.5vw, 44px);
+  line-height: 1.25;
+  margin: 0 0 12px;
+}
+
+h1 .accent { color: var(--yonsei); }
+
+.lede { margin: 0 0 32px; color: var(--ink-soft); }
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 20px;
+  margin: 40px 0 14px;
+}
+
+h2 .num {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  margin-right: 10px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--yonsei);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin: 0 0 16px;
+}
+
+.kv { width: 100%; border-collapse: collapse; font-size: 14px; }
+.kv th, .kv td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.kv tr:last-child th, .kv tr:last-child td { border-bottom: 0; }
+.kv th {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  width: 200px;
+}
+.kv td {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  word-break: break-all;
+}
+.kv tbody tr:nth-child(even) { background: var(--surface-2); }
+
+.pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--yonsei-line);
+  background: var(--yonsei-light);
+  color: var(--yonsei);
+}
+.pill.good { border-color: #B7DDCB; background: #E7F5EF; color: var(--good); }
+.pill.warn { border-color: #EBD4B4; background: #FBF1E4; color: var(--warn); }
+
+.log {
+  background: var(--formula-bg);
+  color: var(--formula-ink);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}
+.log .acc { color: var(--formula-acc); }
+
+.callout {
+  background: var(--yonsei-light);
+  border: 1px solid var(--yonsei-line);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--ink);
+  margin: 0 0 16px;
+}
+.callout.warn {
+  background: #FBF1E4;
+  border-color: #EBD4B4;
+  color: #6B3A00;
+}
+
+.nav { margin-top: 36px; font-size: 14px; }
+.nav a { color: var(--yonsei-mid); text-decoration: none; border-bottom: 1px solid var(--yonsei-line); }
+.nav a:hover { color: var(--yonsei); }
+.nav a:focus-visible { outline: 2px solid var(--yonsei); outline-offset: 3px; }
+
+.rise { animation: rise .5s ease both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; }
+}
