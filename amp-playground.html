@@ -77,13 +77,21 @@ code{font-family:var(--mono);font-size:.92em;background:var(--yonsei-light);padd
 </head>
 <body>
 <main>
-  <p class="eyebrow rise">Amplitude Browser SDK 2 · Manual Test Console</p>
+  <p class="eyebrow rise">Amplitude Browser SDK 2 · De-identification Option 2</p>
   <h1 class="rise">Amplitude Web SDK <span class="accent">Playground</span></h1>
   <p class="lede rise">
-    User ID 를 직접 입력해 설정하고, 원하는 이벤트명으로 이벤트를 전송해 볼 수 있는 테스트 페이지입니다.
+    <strong>방안2(User ID 가명화 전송)</strong> 가 적용된 테스트 페이지입니다.
+    입력한 User ID 원문은 페이지 자체 Session Store 에만 남고, Amplitude 에는 가명화된 값만 전송됩니다.
     실제로 <code>api2.amplitude.com/2/httpapi</code> 로 나가는 요청 본문과 응답을 아래 로그에 그대로 보여주므로
     DevTools 없이도 무엇이 전송됐는지 확인할 수 있습니다.
   </p>
+
+  <div class="callout rise">
+    <strong>고객사 전달 샘플 범위</strong> — 이 페이지의 스크립트는 네 블록으로 나뉘어 있습니다.
+    <code>[C] Amplitude 연동</code> 블록(<code>AmplitudeAnalytics</code> 클래스)만 그대로 발췌하면 샘플 코드가 됩니다.
+    <code>[B] 고객사 구현 영역</code>(<code>SessionStore</code>, <code>Pseudonymizer</code>)은 고객사 환경에 맞게
+    교체할 부분이고, <code>[D] 테스트 콘솔 UI</code> 는 이 페이지 전용이라 샘플에 포함되지 않습니다.
+  </div>
 
   <h2><span class="num">01</span>현재 상태</h2>
   <div class="card">
@@ -97,18 +105,25 @@ code{font-family:var(--mono);font-size:.92em;background:var(--yonsei-light);padd
       <label for="user-id">User ID</label>
       <input type="text" id="user-id" placeholder="예: taijun@ab180.co" autocomplete="off">
       <p class="hint">
-        설정하면 이후 전송되는 모든 이벤트에 <code>user_id</code> 로 붙습니다. 값은 SDK 쿠키에 캐싱되어 새로고침 후에도 유지됩니다.
-        <br>
-        동시에 <strong>웹 페이지가 자체적으로 관리하는 Session Store</strong>
-        (<code>localStorage["playground_app_user_id"]</code>) 에도 저장합니다 —
-        Amplitude SDK 의 쿠키 저장소와는 별개이며, 01 섹션에서 두 값을 나란히 확인할 수 있습니다.
+        입력한 <strong>원문</strong> 은 웹 페이지가 자체 관리하는 Session Store
+        (<code>localStorage["playground_app_user_id"]</code>) 에 저장되고,
+        Amplitude 에는 <strong>가명화된 값만</strong> <code>setUserId()</code> 로 전달됩니다.
+        가명 ID 는 SDK 쿠키에 캐싱되어 새로고침 후에도 유지됩니다.
+        01 섹션에서 원문(Session Store)과 가명 ID(<code>user_id</code>)를 나란히 확인할 수 있습니다.
       </p>
     </div>
     <div class="row">
       <button id="btn-set-user">User ID 설정</button>
-      <button class="ghost" id="btn-reset">Reset (로그아웃)</button>
+      <button class="ghost" id="btn-reset">Amplitude Reset (로그아웃)</button>
+      <button class="ghost" id="btn-clear-store">Session Store 비우기</button>
+      <button class="ghost" id="btn-clear-flag">최초 실행 플래그 초기화</button>
     </div>
-    <p class="hint">Reset 은 <code>amplitude.reset()</code> — <code>user_id</code> 를 지우고 <code>device_id</code> 를 새로 발급하며, Session Store 도 함께 비웁니다.</p>
+    <p class="hint">
+      세 버튼은 서로 다른 저장소를 건드립니다 —
+      <strong>Amplitude Reset</strong> 은 <code>amplitude.reset()</code> 으로 SDK 쿠키만(<code>user_id</code> 제거, <code>device_id</code> 재발급),
+      <strong>Session Store 비우기</strong> 는 페이지 자체 <code>localStorage</code> 만,
+      <strong>최초 실행 플래그 초기화</strong> 는 마이그레이션 플래그만 지우고 새로고침합니다(분기 A 재현용).
+    </p>
   </div>
 
   <h2><span class="num">03</span>이벤트 전송</h2>
@@ -138,44 +153,249 @@ code{font-family:var(--mono);font-size:.92em;background:var(--yonsei-light);padd
     그래서 <code>[Amplitude] Page Viewed</code>, <code>session_start</code> 는 보이지만
     <code>[Amplitude] Element Clicked</code> 는 보이지 않습니다.
   </div>
+  <div class="callout warn">
+    <strong>방안2 확인 포인트</strong> — REQUEST 본문의 <code>user_id</code> 는 <code>pseudo_</code> 로 시작해야 하며,
+    본문 어디에도 입력한 <strong>원문 문자열이 나타나지 않아야</strong> 정상입니다.
+    브라우저 찾기(⌘F / Ctrl+F)로 원문을 검색해 확인하세요.
+  </div>
   <pre class="log" id="log">초기화 중…</pre>
   <div class="row"><button class="ghost" id="btn-clear">로그 지우기</button></div>
 </main>
 
 <script>
-/* ─────────────────────────────────────────────────────────────
-   설정
-   ───────────────────────────────────────────────────────────── */
-const API_KEY = "e256c58b525380ba922fd09d2d79a001";
-const SERVER_ZONE = "US"; // EU 프로젝트라면 "EU"
+/* ══════════════════════════════════════════════════════════════
+   [A] 설정
+   ══════════════════════════════════════════════════════════════ */
+const AMPLITUDE_API_KEY = "7c52da39bdca1eb3c24dcb0503841b72";
+const AMPLITUDE_SERVER_ZONE = "US"; // EU 프로젝트라면 "EU"
 const SDK_URL = "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@2.45.5/lib/scripts/amplitude-min.umd.js";
 
-/** Browser SDK 2 의 identity 쿠키 이름 규칙 */
-const cookieName = ["AMP", API_KEY.slice(0, 10)].join("_");
 
-/* ─────────────────────────────────────────────────────────────
-   Session Store — 웹 페이지가 자체적으로 관리하는 저장소.
-   Amplitude SDK 의 쿠키 저장소(AMP_*)와는 완전히 별개다.
-   같은 origin 의 다른 테스트 페이지와 섞이지 않도록 전용 키를 쓴다.
-   ───────────────────────────────────────────────────────────── */
-const SESSION_STORE_KEY = "playground_app_user_id";
-const sessionStore = {
-  get() {
-    try { return localStorage.getItem(SESSION_STORE_KEY); }
-    catch (e) { return null; }
-  },
-  set(value) {
-    try { localStorage.setItem(SESSION_STORE_KEY, value); return true; }
-    catch (e) { log("Session Store 저장 실패: " + e.message); return false; }
-  },
-  clear() {
-    try { localStorage.removeItem(SESSION_STORE_KEY); } catch (e) {}
-  },
-};
+/* ══════════════════════════════════════════════════════════════
+   [B] 고객사 구현 영역 — Amplitude 와 무관
+   ──────────────────────────────────────────────────────────────
+   아래 두 클래스는 고객사 환경에 맞게 통째로 교체하는 부분이다.
+   [C] Amplitude 연동 코드는 이 두 객체의 인터페이스만 사용하므로,
+   구현을 바꿔도 [C] 는 손댈 필요가 없다.
+   ══════════════════════════════════════════════════════════════ */
 
-/* ─────────────────────────────────────────────────────────────
-   로그
-   ───────────────────────────────────────────────────────────── */
+/**
+ * 웹 페이지가 자체적으로 관리하는 저장소.
+ * Amplitude SDK 의 쿠키 저장소(AMP_*)와는 완전히 별개이며,
+ * localStorage 라 API Key 가 바뀌어도 값이 유지된다 — 이 비대칭이 방안2 분기 A 의 입력을 만든다.
+ */
+class SessionStore {
+  /** 구버전 앱/웹이 이미 원문 User ID 를 보관하고 있던 키. 방안2 마이그레이션의 입력. */
+  static RAW_USER_ID_KEY = "playground_app_user_id";
+  /** 신규 버전에서 가명화 마이그레이션을 이미 수행했는지 표시하는 키. */
+  static MIGRATION_FLAG_KEY = "playground_v2_first_run_done";
+
+  // localStorage 는 사파리 프라이빗 모드 등에서 접근 자체가 예외를 던진다.
+  #read(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  #write(key, value) { try { localStorage.setItem(key, value); return true; } catch (e) { return false; } }
+  #remove(key) { try { localStorage.removeItem(key); return true; } catch (e) { return false; } }
+
+  getRawUserId() { return this.#read(SessionStore.RAW_USER_ID_KEY); }
+  setRawUserId(value) { return this.#write(SessionStore.RAW_USER_ID_KEY, value); }
+  clearRawUserId() { return this.#remove(SessionStore.RAW_USER_ID_KEY); }
+
+  isMigrationDone() { return this.#read(SessionStore.MIGRATION_FLAG_KEY) === "1"; }
+  markMigrationDone() { return this.#write(SessionStore.MIGRATION_FLAG_KEY, "1"); }
+  clearMigrationFlag() { return this.#remove(SessionStore.MIGRATION_FLAG_KEY); }
+}
+
+/**
+ * 원문 User ID → 가명 ID 변환기.
+ *
+ * ⚠️ 아래는 테스트용 dummy 다. 그대로 운영에 쓰면 안 된다.
+ *    클라이언트 사이드 SHA-256 은 이메일·전화번호처럼 후보군이 유한한 값에 대해
+ *    레인보우 테이블로 즉시 역산되므로, 해시했다는 사실만으로는 식별성이 제거되지 않는다.
+ *    운영에서는 서버 HMAC(secret 비노출) 또는 원문↔가명 매핑 테이블로 교체한다.
+ *
+ * ⚠️ 어느 방식이든 결정론적이어야 한다 — 같은 원문이면 기기·시점과 무관하게 같은 가명 ID 가
+ *    나와야 기기 교체·재로그인 후에도 동일 사용자로 이어진다.
+ */
+class Pseudonymizer {
+  async pseudonymize(rawUserId) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rawUserId));
+    const hex = [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    return "pseudo_" + hex.slice(0, 16);
+  }
+}
+
+/* 운영 적용 시에는 위 Pseudonymizer 를 아래와 같은 서버 연동 구현으로 교체한다.
+   [C] 는 pseudonymize(raw) 인터페이스만 알면 되므로 이 클래스만 갈아끼우면 된다.
+
+class ServerPseudonymizer {
+  async pseudonymize(rawUserId) {
+    const res = await fetch("/api/analytics/pseudonymize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ userId: rawUserId }),
+    });
+    if (!res.ok) throw new Error("pseudonymize failed: " + res.status);
+    const { pseudoId } = await res.json();
+    return pseudoId;
+  }
+}
+*/
+
+
+/* ══════════════════════════════════════════════════════════════
+   [C] ★ Amplitude 연동 — 고객사 전달 샘플 범위 ★
+   ──────────────────────────────────────────────────────────────
+   방안2(User ID 가명화 전송)를 Amplitude Browser SDK 2 에 적용한 코드.
+   이 블록만 그대로 발췌하면 샘플이 된다. [B] 의 두 객체를 주입받아 쓴다.
+   ══════════════════════════════════════════════════════════════ */
+class AmplitudeAnalytics {
+  /**
+   * Amplitude 의 identity 저장소는 쿠키이며, 이름이 API Key 에서 파생된다.
+   *   ["AMP", suffix, apiKey.slice(0, 10)].filter(Boolean).join("_")
+   *
+   * 따라서 API Key 를 교체하면 쿠키 이름이 달라지고, 신규 SDK 는 구 Key 의 쿠키를 읽지 못한다.
+   * 구 쿠키가 삭제되는 것이 아니라 참조되지 않을 뿐이다(= 미참조 격리).
+   * 이것이 방안2 에서 "API Key 교체만으로 구 원문 user_id 가 승계되지 않는" 근거다.
+   * 부수 효과로 신규 쿠키에는 새 device_id 가 발급되어 과거 데이터와의 device 기반 연결은 끊긴다.
+   */
+  static cookieName(apiKey, suffix = "") {
+    return ["AMP", suffix, String(apiKey).slice(0, 10)].filter(Boolean).join("_");
+  }
+
+  /**
+   * @param {string} apiKey         신규 Amplitude 프로젝트 API Key
+   * @param {string} serverZone     "US" | "EU"
+   * @param {SessionStore} sessionStore   원문 User ID·마이그레이션 플래그를 보관하는 앱 자체 저장소 [B]
+   * @param {Pseudonymizer} pseudonymizer 원문 → 가명 ID 변환기 [B]
+   * @param {Function} logger       (선택) 진행 상황 로깅. 이 테스트 페이지 전용이라 샘플에서는 빼도 된다.
+   */
+  constructor({ apiKey, serverZone = "US", sessionStore, pseudonymizer, logger = () => {} }) {
+    this.apiKey = apiKey;
+    this.serverZone = serverZone;
+    this.sessionStore = sessionStore;
+    this.pseudonymizer = pseudonymizer;
+    this.log = logger;
+
+    this.branch = null;   // 이번 로드에서 탄 분기 ("A" | "B")
+    this.pseudoId = null; // 이번 로드에서 계산한 가명 ID
+  }
+
+  /** UMD 전역. npm 환경에서는 `import * as amplitude from "@amplitude/analytics-browser"` 로 대체한다. */
+  get sdk() { return window.amplitude; }
+
+  /** 두 분기가 공유하는 init 옵션 */
+  #initOptions() {
+    return {
+      // 버튼 클릭·폼 입력 자동 수집은 끈다 — 테스트 버튼 클릭이 이벤트로 잡히면 로그가 묻힌다.
+      autocapture: {
+        attribution: true, pageViews: true, sessions: true,
+        formInteractions: false, fileDownloads: false, elementInteractions: false,
+      },
+      // ↓ 요청을 즉시 관측하기 위한 테스트 편의 설정. 운영에서는 지정하지 말고 SDK 기본 배칭을 쓴다.
+      flushIntervalMillis: 500,
+      flushQueueSize: 1,
+      serverZone: this.serverZone === "EU" ? "EU" : "US",
+      logLevel: 3, // Verbose
+    };
+  }
+
+  /**
+   * 방안2의 핵심. 앱 시작 시 Amplitude 초기화 전에 호출한다.
+   *
+   * 분기 A (신규 버전 최초 실행 & 앱이 보관 중인 원문 있음)
+   *   원문을 가명화해 userId 로 넘기고 마이그레이션 완료를 기록한다. 원문은 SDK 로 넘어가지 않는다.
+   * 분기 B (2회차 이후)
+   *   setUserId 를 호출하지 않는다. 신규 API Key 쿠키에 캐싱된 가명 user_id 를 SDK 가 이어서 쓴다.
+   *   → 가명화 비용(서버 왕복)은 최초 1회만 발생한다.
+   */
+  async init() {
+    const cachedRawUserId = this.sessionStore.getRawUserId();
+    const migrationDone = this.sessionStore.isMigrationDone();
+
+    if (!migrationDone && cachedRawUserId) {
+      this.branch = "A";
+      this.log("[분기 A] 최초 실행 & 자체 캐싱 원문 존재 → 가명화 수행");
+
+      try {
+        this.pseudoId = await this.pseudonymizer.pseudonymize(cachedRawUserId);
+      } catch (e) {
+        // 가명화에 실패해도 원문으로 폴백하지 않는다 — 폴백하면 방안2 자체가 무의미해진다.
+        // 익명으로 초기화하고 플래그를 남기지 않아 다음 로드에서 다시 시도한다.
+        this.log("가명화 실패 — 원문 폴백 없이 익명으로 초기화합니다: " + e.message);
+        this.branch = "B";
+        await this.sdk.init(this.apiKey, this.#initOptions()).promise;
+        return this.branch;
+      }
+
+      // userId 를 init 옵션으로 넘기면 초기화 직후 자동 수집되는 이벤트에도 확실히 붙는다.
+      // (init 후 setUserId 를 호출해도 되지만, 그 사이 이벤트에는 user_id 가 비어 있을 수 있다.)
+      await this.sdk.init(this.apiKey, { ...this.#initOptions(), userId: this.pseudoId }).promise;
+      this.sessionStore.markMigrationDone();
+    } else {
+      this.branch = "B";
+      this.log(
+        migrationDone
+          ? "[분기 B] 마이그레이션 완료 상태 → setUserId 없이 init 만 수행 (쿠키의 가명 ID 사용)"
+          : "[분기 B] 자체 캐싱 원문이 없어 가명화 대상 없음 → 익명으로 init"
+      );
+      await this.sdk.init(this.apiKey, this.#initOptions()).promise;
+    }
+
+    return this.branch;
+  }
+
+  /**
+   * 로그인 성공 시 호출. 기존의 `setUserId(원문)` 호출을 전부 이 메서드로 교체한다.
+   * 원문은 여기서 소비되고 끝나며, SDK 에는 가명 ID 만 전달된다.
+   * 가명화 실패 시 throw 한다 — 호출부에서 잡되, 원문으로 폴백해서는 안 된다.
+   */
+  async identifyUser(rawUserId) {
+    const pseudoId = await this.pseudonymizer.pseudonymize(rawUserId);
+    this.pseudoId = pseudoId;
+    this.sdk.setUserId(pseudoId);
+    return pseudoId;
+  }
+
+  async trackEvent(eventName, eventProperties) {
+    await this.sdk.track(eventName, eventProperties).promise;
+    await this.sdk.flush().promise; // 테스트에서 요청을 즉시 보기 위함. 운영에서는 불필요.
+  }
+
+  async setUserProperties(properties) {
+    const identify = new this.sdk.Identify();
+    for (const [key, value] of Object.entries(properties)) identify.set(key, value);
+    await this.sdk.identify(identify).promise;
+    await this.sdk.flush().promise;
+  }
+
+  /** 로그아웃. SDK 저장소(user_id 제거·device_id 재발급)만 초기화한다.
+   *  앱 자체 저장소를 함께 비울지는 호출부가 결정한다 — 여기서 건드리지 않는다. */
+  logout() {
+    this.sdk.reset();
+    this.pseudoId = null;
+  }
+
+  getState() {
+    const sdk = this.sdk;
+    return {
+      branch: this.branch,
+      pseudoId: this.pseudoId,
+      userId: sdk?.getUserId?.(),
+      deviceId: sdk?.getDeviceId?.(),
+      sessionId: sdk?.getSessionId?.(),
+      cookieName: AmplitudeAnalytics.cookieName(this.apiKey),
+    };
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   [D] 테스트 콘솔 UI — 샘플 범위 아님
+   ──────────────────────────────────────────────────────────────
+   화면 로그, payload 관찰용 fetch 후킹, 상태 패널, 버튼 배선.
+   이 페이지에서 동작을 눈으로 확인하기 위한 코드이며 고객사 샘플에는 포함하지 않는다.
+   ══════════════════════════════════════════════════════════════ */
+
 const logEl = document.getElementById("log");
 let logBuf = [];
 function log(msg, detail) {
@@ -187,6 +407,17 @@ function log(msg, detail) {
 }
 document.getElementById("btn-clear").addEventListener("click", () => {
   logBuf = []; logEl.textContent = "(비어 있음)";
+});
+
+/* [B] 구현체와 [C] 연동 객체를 여기서 조립한다. */
+const sessionStore = new SessionStore();
+const pseudonymizer = new Pseudonymizer();
+const analytics = new AmplitudeAnalytics({
+  apiKey: AMPLITUDE_API_KEY,
+  serverZone: AMPLITUDE_SERVER_ZONE,
+  sessionStore,
+  pseudonymizer,
+  logger: log,
 });
 
 /* ─────────────────────────────────────────────────────────────
@@ -216,9 +447,7 @@ window.fetch = async function (input, init) {
   return res;
 };
 
-/* ─────────────────────────────────────────────────────────────
-   상태 표시
-   ───────────────────────────────────────────────────────────── */
+/* ── 상태 패널 ───────────────────────────────────────────────── */
 function pill(text, kind) {
   const el = document.createElement("span");
   el.className = "pill" + (kind ? " " + kind : "");
@@ -226,17 +455,22 @@ function pill(text, kind) {
   return el;
 }
 function renderStatus() {
-  const amp = window.amplitude;
-  const userId = amp && amp.getUserId ? amp.getUserId() : undefined;
+  const s = analytics.getState();
+  const branchLabel = s.branch === "A" ? "A · 최초 실행 (가명화 수행)"
+                    : s.branch === "B" ? "B · 2회차 이후 (쿠키 캐싱)"
+                    : null;
   const rows = [
     ["SDK 상태", ready ? pill("initialized", "good") : pill("not ready", "warn")],
-    ["api_key", API_KEY.slice(0, 10) + "…"],
-    ["server_zone", SERVER_ZONE],
-    ["user_id", userId || pill("(미설정 · 익명)", "warn")],
-    ["Session Store (페이지 자체)", sessionStore.get() || pill("(비어 있음)", "warn")],
-    ["device_id", (amp && amp.getDeviceId && amp.getDeviceId()) || "—"],
-    ["session_id", (amp && amp.getSessionId && amp.getSessionId()) || "—"],
-    ["identity 쿠키", cookieName],
+    ["api_key", AMPLITUDE_API_KEY.slice(0, 10) + "…"],
+    ["server_zone", AMPLITUDE_SERVER_ZONE],
+    ["실행 분기", branchLabel ? pill(branchLabel, s.branch === "A" ? "good" : "") : pill("(미초기화)", "warn")],
+    ["user_id (Amplitude 전송값)", s.userId || pill("(미설정 · 익명)", "warn")],
+    ["가명화 결과 (이번 로드)", s.pseudoId || "—"],
+    ["Session Store (페이지 자체)", sessionStore.getRawUserId() || pill("(비어 있음)", "warn")],
+    ["마이그레이션 플래그", sessionStore.isMigrationDone() ? pill("완료", "good") : pill("미완료", "warn")],
+    ["device_id", s.deviceId || "—"],
+    ["session_id", s.sessionId || "—"],
+    ["identity 쿠키", s.cookieName],
     ["AMP* 쿠키", document.cookie.split(";").map(c => c.trim().split("=")[0])
       .filter(n => n.startsWith("AMP")).join(", ") || "(없음)"],
   ];
@@ -252,11 +486,10 @@ function renderStatus() {
 }
 document.getElementById("btn-refresh").addEventListener("click", renderStatus);
 
-/* ─────────────────────────────────────────────────────────────
-   SDK 로드 및 초기화
-   ───────────────────────────────────────────────────────────── */
+/* ── SDK 로드 및 부트스트랩 ──────────────────────────────────── */
 let ready = false;
 
+// UMD 번들을 버전 고정해 로드한다(재현성). npm 환경에서는 이 함수가 필요 없다.
 function loadSdk() {
   return new Promise((resolve, reject) => {
     const s = document.createElement("script");
@@ -271,34 +504,19 @@ function loadSdk() {
   try {
     renderStatus();
     log("SDK 로드 중… " + SDK_URL);
-    const amplitude = await loadSdk();
+    await loadSdk();
 
-    await amplitude.init(API_KEY, {
-      // 세션·페이지뷰·어트리뷰션은 켜 두고, 버튼 클릭/폼 입력 자동 수집은 끈다.
-      // 이 페이지의 버튼을 누르는 행위 자체가 이벤트로 잡히면 테스트 로그가 묻힌다.
-      autocapture: {
-        attribution: true,
-        pageViews: true,
-        sessions: true,
-        formInteractions: false,
-        fileDownloads: false,
-        elementInteractions: false,
-      },
-      flushIntervalMillis: 500,   // 테스트 편의를 위해 짧게
-      flushQueueSize: 1,
-      serverZone: SERVER_ZONE,
-      logLevel: 3,                // Verbose
-    }).promise;
-
+    const branch = await analytics.init();   // ← 방안2 분기 A/B 는 여기서 일어난다
     ready = true;
-    log("init 완료. cookie=" + cookieName + "  device_id=" + amplitude.getDeviceId());
 
-    // 쿠키에 이미 user_id 가 캐싱되어 있으면 입력창에 채워 준다
-    const cached = amplitude.getUserId();
-    if (cached) {
-      document.getElementById("user-id").value = cached;
-      log("쿠키에 캐싱된 user_id 발견: " + cached);
-    }
+    const s = analytics.getState();
+    log(`init 완료. branch=${branch}  cookie=${s.cookieName}  device_id=${s.deviceId}  user_id=${s.userId || "(익명)"}`);
+    if (s.pseudoId) log(`가명화 결과: ${s.pseudoId}  ← 원문은 Session Store 에만 남고 전송되지 않는다`);
+
+    // 입력창에는 원문을 채운다. Amplitude 에 들어간 값(가명 ID)과 구분해서 보기 위함.
+    const cachedRaw = sessionStore.getRawUserId();
+    if (cachedRaw) document.getElementById("user-id").value = cachedRaw;
+
     renderStatus();
     document.body.dataset.ready = "1";
   } catch (e) {
@@ -307,35 +525,53 @@ function loadSdk() {
   }
 })();
 
-/* ─────────────────────────────────────────────────────────────
-   액션
-   ───────────────────────────────────────────────────────────── */
+/* ── 버튼 배선 ───────────────────────────────────────────────── */
 function guard() {
   if (!ready) { log("아직 SDK 초기화 전입니다. 잠시 후 다시 시도하세요."); return false; }
   return true;
 }
 
-document.getElementById("btn-set-user").addEventListener("click", () => {
+// 로그인 시뮬레이션. 원문 보관은 앱(=고객사) 책임, 가명화 후 전송은 [C] 책임으로 분리돼 있다.
+document.getElementById("btn-set-user").addEventListener("click", async () => {
   if (!guard()) return;
-  const v = document.getElementById("user-id").value.trim();
-  if (!v) { log("User ID 가 비어 있습니다."); return; }
-  window.amplitude.setUserId(v);
-  log('setUserId("' + v + '") 호출');
+  const rawUserId = document.getElementById("user-id").value.trim();
+  if (!rawUserId) { log("User ID 가 비어 있습니다."); return; }
 
-  // 웹 페이지 자체 Session Store 에도 보관한다 (Amplitude SDK 저장소와 무관)
-  if (sessionStore.set(v)) {
-    log('Session Store 저장 — localStorage["' + SESSION_STORE_KEY + '"] = "' + v + '"');
+  if (sessionStore.setRawUserId(rawUserId)) {
+    log(`Session Store 저장 — localStorage["${SessionStore.RAW_USER_ID_KEY}"] = "${rawUserId}"`);
+  } else {
+    log("Session Store 저장 실패 (localStorage 접근 불가)");
+  }
+
+  try {
+    const pseudoId = await analytics.identifyUser(rawUserId);
+    log(`입력 원문 "${rawUserId}"  →  가명화 "${pseudoId}"  →  setUserId(가명) 호출`);
+  } catch (e) {
+    // 원문 폴백 없이 실패로 끝낸다.
+    log("가명화 실패 — setUserId 를 호출하지 않았습니다: " + e.message);
   }
   renderStatus();
 });
 
 document.getElementById("btn-reset").addEventListener("click", () => {
   if (!guard()) return;
-  window.amplitude.reset();
-  sessionStore.clear();
-  document.getElementById("user-id").value = "";
-  log("reset() 호출 — user_id 제거, device_id 재발급, Session Store 비움");
+  analytics.logout();
+  log("amplitude.reset() 호출 — user_id 제거, device_id 재발급 (Session Store 는 그대로)");
   renderStatus();
+});
+
+document.getElementById("btn-clear-store").addEventListener("click", () => {
+  sessionStore.clearRawUserId();
+  document.getElementById("user-id").value = "";
+  log(`Session Store 비움 — localStorage["${SessionStore.RAW_USER_ID_KEY}"] 삭제 (Amplitude 는 그대로)`);
+  renderStatus();
+});
+
+// 분기 A 를 다시 재현하기 위한 버튼. Session Store 의 원문은 건드리지 않는다.
+document.getElementById("btn-clear-flag").addEventListener("click", () => {
+  sessionStore.clearMigrationFlag();
+  log("최초 실행 플래그 초기화 — 새로고침하면 분기 A 가 다시 실행됩니다.");
+  setTimeout(() => location.reload(), 400);
 });
 
 document.getElementById("btn-track").addEventListener("click", async () => {
@@ -358,17 +594,13 @@ document.getElementById("btn-track").addEventListener("click", async () => {
   }
 
   log('track("' + name + '")' + (props ? " properties=" + JSON.stringify(props) : "") + " 호출");
-  await window.amplitude.track(name, props).promise;
-  await window.amplitude.flush().promise;
+  await analytics.trackEvent(name, props);
   renderStatus();
 });
 
 document.getElementById("btn-identify").addEventListener("click", async () => {
   if (!guard()) return;
-  const id = new window.amplitude.Identify();
-  id.set("plan", "pro");
-  await window.amplitude.identify(id).promise;
-  await window.amplitude.flush().promise;
+  await analytics.setUserProperties({ plan: "pro" });
   log("identify(plan=pro) 호출");
 });
 
