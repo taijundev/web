@@ -96,13 +96,19 @@ code{font-family:var(--mono);font-size:.92em;background:var(--yonsei-light);padd
     <div class="field">
       <label for="user-id">User ID</label>
       <input type="text" id="user-id" placeholder="예: taijun@ab180.co" autocomplete="off">
-      <p class="hint">설정하면 이후 전송되는 모든 이벤트에 <code>user_id</code> 로 붙습니다. 값은 SDK 쿠키에 캐싱되어 새로고침 후에도 유지됩니다.</p>
+      <p class="hint">
+        설정하면 이후 전송되는 모든 이벤트에 <code>user_id</code> 로 붙습니다. 값은 SDK 쿠키에 캐싱되어 새로고침 후에도 유지됩니다.
+        <br>
+        동시에 <strong>웹 페이지가 자체적으로 관리하는 Session Store</strong>
+        (<code>localStorage["playground_app_user_id"]</code>) 에도 저장합니다 —
+        Amplitude SDK 의 쿠키 저장소와는 별개이며, 01 섹션에서 두 값을 나란히 확인할 수 있습니다.
+      </p>
     </div>
     <div class="row">
       <button id="btn-set-user">User ID 설정</button>
       <button class="ghost" id="btn-reset">Reset (로그아웃)</button>
     </div>
-    <p class="hint">Reset 은 <code>amplitude.reset()</code> — <code>user_id</code> 를 지우고 <code>device_id</code> 를 새로 발급합니다.</p>
+    <p class="hint">Reset 은 <code>amplitude.reset()</code> — <code>user_id</code> 를 지우고 <code>device_id</code> 를 새로 발급하며, Session Store 도 함께 비웁니다.</p>
   </div>
 
   <h2><span class="num">03</span>이벤트 전송</h2>
@@ -146,6 +152,26 @@ const SDK_URL = "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@2.45.
 
 /** Browser SDK 2 의 identity 쿠키 이름 규칙 */
 const cookieName = ["AMP", API_KEY.slice(0, 10)].join("_");
+
+/* ─────────────────────────────────────────────────────────────
+   Session Store — 웹 페이지가 자체적으로 관리하는 저장소.
+   Amplitude SDK 의 쿠키 저장소(AMP_*)와는 완전히 별개다.
+   같은 origin 의 다른 테스트 페이지와 섞이지 않도록 전용 키를 쓴다.
+   ───────────────────────────────────────────────────────────── */
+const SESSION_STORE_KEY = "playground_app_user_id";
+const sessionStore = {
+  get() {
+    try { return localStorage.getItem(SESSION_STORE_KEY); }
+    catch (e) { return null; }
+  },
+  set(value) {
+    try { localStorage.setItem(SESSION_STORE_KEY, value); return true; }
+    catch (e) { log("Session Store 저장 실패: " + e.message); return false; }
+  },
+  clear() {
+    try { localStorage.removeItem(SESSION_STORE_KEY); } catch (e) {}
+  },
+};
 
 /* ─────────────────────────────────────────────────────────────
    로그
@@ -207,6 +233,7 @@ function renderStatus() {
     ["api_key", API_KEY.slice(0, 10) + "…"],
     ["server_zone", SERVER_ZONE],
     ["user_id", userId || pill("(미설정 · 익명)", "warn")],
+    ["Session Store (페이지 자체)", sessionStore.get() || pill("(비어 있음)", "warn")],
     ["device_id", (amp && amp.getDeviceId && amp.getDeviceId()) || "—"],
     ["session_id", (amp && amp.getSessionId && amp.getSessionId()) || "—"],
     ["identity 쿠키", cookieName],
@@ -294,14 +321,20 @@ document.getElementById("btn-set-user").addEventListener("click", () => {
   if (!v) { log("User ID 가 비어 있습니다."); return; }
   window.amplitude.setUserId(v);
   log('setUserId("' + v + '") 호출');
+
+  // 웹 페이지 자체 Session Store 에도 보관한다 (Amplitude SDK 저장소와 무관)
+  if (sessionStore.set(v)) {
+    log('Session Store 저장 — localStorage["' + SESSION_STORE_KEY + '"] = "' + v + '"');
+  }
   renderStatus();
 });
 
 document.getElementById("btn-reset").addEventListener("click", () => {
   if (!guard()) return;
   window.amplitude.reset();
+  sessionStore.clear();
   document.getElementById("user-id").value = "";
-  log("reset() 호출 — user_id 제거, device_id 재발급");
+  log("reset() 호출 — user_id 제거, device_id 재발급, Session Store 비움");
   renderStatus();
 });
 
