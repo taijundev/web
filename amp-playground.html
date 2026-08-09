@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Amplitude Web SDK Playground</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#EDF1F8; --surface:#FFFFFF; --surface-2:#F6F9FD;
@@ -14,9 +11,10 @@
   --yonsei:#00337F; --yonsei-mid:#1E5FB0; --yonsei-light:#E6EDF7; --yonsei-line:#C4D4EA;
   --formula-bg:#062A5E; --formula-ink:#EAF0FA; --formula-acc:#9DC2EE;
   --good:#1B7F5A; --warn:#B25A00; --radius:14px; --maxw:820px;
-  --serif:"Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
-  --sans:"IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
-  --mono:"IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+  /* 웹폰트를 내려받지 않는다. 로컬에 설치돼 있으면 쓰고, 없으면 시스템 폰트로 떨어진다. */
+  --serif:"Noto Serif KR", Georgia, "Times New Roman", AppleMyungjo, Batang, "Apple SD Gothic Neo", serif;
+  --sans:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", system-ui, sans-serif;
+  --mono:ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "D2Coding", monospace;
 }
 *{box-sizing:border-box}
 body{margin:0;padding:48px 24px 96px;background:var(--bg);color:var(--ink-soft);
