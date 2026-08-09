@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amplitude Web SDK Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#EDF1F8; --surface:#FFFFFF; --surface-2:#F6F9FD;
+  --ink:#0A2545; --ink-soft:#46566E; --ink-faint:#8492A8; --line:#D5DEEC;
+  --yonsei:#00337F; --yonsei-mid:#1E5FB0; --yonsei-light:#E6EDF7; --yonsei-line:#C4D4EA;
+  --formula-bg:#062A5E; --formula-ink:#EAF0FA; --formula-acc:#9DC2EE;
+  --good:#1B7F5A; --warn:#B25A00; --radius:14px; --maxw:820px;
+  --serif:"Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+  --sans:"IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:48px 24px 96px;background:var(--bg);color:var(--ink-soft);
+     font-family:var(--sans);font-weight:300;line-height:1.7;-webkit-font-smoothing:antialiased}
+main{max-width:var(--maxw);margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.2em;
+         color:var(--ink-faint);margin:0 0 12px}
+h1{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:clamp(32px,6vw,50px);
+   line-height:1.2;margin:0 0 14px}
+h1 .accent{color:var(--yonsei)}
+.lede{margin:0 0 34px}
+h2{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:20px;margin:40px 0 14px}
+h2 .num{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--ink-faint);
+        letter-spacing:.12em;margin-right:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--yonsei);
+      border-radius:var(--radius);padding:20px 22px;margin:0 0 16px;
+      transition:transform .18s ease, box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 28px -18px rgba(10,37,69,.55)}
+.kv{width:100%;border-collapse:collapse;font-size:14px}
+.kv th,.kv td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.kv tr:last-child th,.kv tr:last-child td{border-bottom:0}
+.kv th{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.04em;
+       color:var(--ink-faint);white-space:nowrap;width:190px}
+.kv td{font-family:var(--mono);font-size:13px;color:var(--ink);word-break:break-all}
+.kv tbody tr:nth-child(even){background:var(--surface-2)}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+      text-transform:uppercase;color:var(--ink-faint);margin:0 0 7px}
+input[type=text],textarea{width:100%;font-family:var(--mono);font-size:14px;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+  line-height:1.5;resize:vertical}
+input[type=text]:focus,textarea:focus{outline:2px solid var(--yonsei);outline-offset:1px;
+  border-color:var(--yonsei-line);background:var(--surface)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{font-family:var(--sans);font-weight:500;font-size:14px;padding:10px 20px;border-radius:10px;
+  border:1px solid var(--yonsei);background:var(--yonsei);color:#fff;cursor:pointer;
+  transition:transform .15s ease, background .15s ease}
+button:hover{background:var(--yonsei-mid);transform:translateY(-1px)}
+button:focus-visible{outline:2px solid var(--yonsei);outline-offset:3px}
+button.ghost{background:transparent;color:var(--yonsei);border-color:var(--yonsei-line)}
+button.ghost:hover{background:var(--yonsei-light)}
+.field + .field{margin-top:18px}
+.hint{font-size:12.5px;color:var(--ink-faint);margin:7px 0 0}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--yonsei-line);
+  background:var(--yonsei-light);color:var(--yonsei)}
+.pill.good{border-color:#B7DDCB;background:#E7F5EF;color:var(--good)}
+.pill.warn{border-color:#EBD4B4;background:#FBF1E4;color:var(--warn)}
+.log{background:var(--formula-bg);color:var(--formula-ink);font-family:var(--mono);
+  font-size:12.5px;line-height:1.7;border-radius:var(--radius);padding:18px 20px;
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin:0;max-height:520px;overflow-y:auto}
+.log .t{color:var(--formula-acc)}
+.callout{background:var(--yonsei-light);border:1px solid var(--yonsei-line);border-radius:var(--radius);
+  padding:14px 18px;font-size:14px;color:var(--ink);margin:0 0 16px}
+.callout.warn{background:#FBF1E4;border-color:#EBD4B4;color:#6B3A00}
+code{font-family:var(--mono);font-size:.92em;background:var(--yonsei-light);padding:1px 5px;border-radius:5px}
+.rise{animation:rise .5s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rise{animation:none}.card:hover{transform:none}button:hover{transform:none}}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow rise">Amplitude Browser SDK 2 · Manual Test Console</p>
+  <h1 class="rise">Amplitude Web SDK <span class="accent">Playground</span></h1>
+  <p class="lede rise">
+    User ID 를 직접 입력해 설정하고, 원하는 이벤트명으로 이벤트를 전송해 볼 수 있는 테스트 페이지입니다.
+    실제로 <code>api2.amplitude.com/2/httpapi</code> 로 나가는 요청 본문과 응답을 아래 로그에 그대로 보여주므로
+    DevTools 없이도 무엇이 전송됐는지 확인할 수 있습니다.
+  </p>
+
+  <h2><span class="num">01</span>현재 상태</h2>
+  <div class="card">
+    <table class="kv" id="status"><tbody></tbody></table>
+    <div class="row"><button class="ghost" id="btn-refresh">상태 새로고침</button></div>
+  </div>
+
+  <h2><span class="num">02</span>User ID 설정</h2>
+  <div class="card">
+    <div class="field">
+      <label for="user-id">User ID</label>
+      <input type="text" id="user-id" placeholder="예: taijun@ab180.co" autocomplete="off">
+      <p class="hint">설정하면 이후 전송되는 모든 이벤트에 <code>user_id</code> 로 붙습니다. 값은 SDK 쿠키에 캐싱되어 새로고침 후에도 유지됩니다.</p>
+    </div>
+    <div class="row">
+      <button id="btn-set-user">User ID 설정</button>
+      <button class="ghost" id="btn-reset">Reset (로그아웃)</button>
+    </div>
+    <p class="hint">Reset 은 <code>amplitude.reset()</code> — <code>user_id</code> 를 지우고 <code>device_id</code> 를 새로 발급합니다.</p>
+  </div>
+
+  <h2><span class="num">03</span>이벤트 전송</h2>
+  <div class="card">
+    <div class="field">
+      <label for="event-name">Event Name</label>
+      <input type="text" id="event-name" value="test_event" placeholder="예: button_clicked" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="event-props">Event Properties (JSON · 선택)</label>
+      <textarea id="event-props" rows="4" placeholder='{"source": "playground", "count": 1}'></textarea>
+      <p class="hint">비워 두면 properties 없이 전송합니다. JSON 형식이 아니면 전송하지 않고 오류를 표시합니다.</p>
+    </div>
+    <div class="row">
+      <button id="btn-track">이벤트 전송</button>
+      <button class="ghost" id="btn-identify">User Property 설정 (plan=pro)</button>
+    </div>
+  </div>
+
+  <h2><span class="num">04</span>전송 로그</h2>
+  <div class="callout">
+    아래 로그의 <strong>REQUEST</strong> 블록은 SDK 가 실제로 네트워크로 내보낸 요청 본문 그대로입니다.
+    <code>window.fetch</code> 를 감싸 <code>/2/httpapi</code> 요청만 가로채 기록합니다.
+    <br><br>
+    이 페이지는 세션·페이지뷰·어트리뷰션 자동 수집은 켜 두되, <strong>버튼 클릭·폼 입력 자동 수집은 꺼 두었습니다</strong>
+    — 테스트 버튼을 누르는 행위 자체가 이벤트로 잡히면 정작 확인하려는 이벤트가 로그에 묻히기 때문입니다.
+    그래서 <code>[Amplitude] Page Viewed</code>, <code>session_start</code> 는 보이지만
+    <code>[Amplitude] Element Clicked</code> 는 보이지 않습니다.
+  </div>
+  <pre class="log" id="log">초기화 중…</pre>
+  <div class="row"><button class="ghost" id="btn-clear">로그 지우기</button></div>
+</main>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   설정
+   ───────────────────────────────────────────────────────────── */
+const API_KEY = "e256c58b525380ba922fd09d2d79a001";
+const SERVER_ZONE = "US"; // EU 프로젝트라면 "EU"
+const SDK_URL = "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@2.45.5/lib/scripts/amplitude-min.umd.js";
+
+/** Browser SDK 2 의 identity 쿠키 이름 규칙 */
+const cookieName = ["AMP", API_KEY.slice(0, 10)].join("_");
+
+/* ─────────────────────────────────────────────────────────────
+   로그
+   ───────────────────────────────────────────────────────────── */
+const logEl = document.getElementById("log");
+let logBuf = [];
+function log(msg, detail) {
+  const t = new Date().toISOString().slice(11, 23);
+  logBuf.push(`[${t}] ${msg}` + (detail ? "\n" + detail : ""));
+  logEl.textContent = logBuf.join("\n");
+  logEl.scrollTop = logEl.scrollHeight;
+  console.log("[amp-playground] " + msg, detail || "");
+}
+document.getElementById("btn-clear").addEventListener("click", () => {
+  logBuf = []; logEl.textContent = "(비어 있음)";
+});
+
+/* ─────────────────────────────────────────────────────────────
+   fetch 후킹 — /2/httpapi 요청/응답을 화면 로그에 남긴다.
+   SDK 로드 전에 걸어야 한다.
+   ───────────────────────────────────────────────────────────── */
+const originalFetch = window.fetch.bind(window);
+window.fetch = async function (input, init) {
+  const url = typeof input === "string" ? input : (input && input.url) || "";
+  const isAmp = url.includes("/2/httpapi");
+  if (isAmp) {
+    const body = (init && init.body) || (input && input.body) || null;
+    let pretty = body;
+    try {
+      const parsed = JSON.parse(body);
+      if (parsed.api_key) parsed.api_key = parsed.api_key.slice(0, 10) + "…"; // 로그에는 축약 표시
+      pretty = JSON.stringify(parsed, null, 2);
+    } catch (_) { /* 원문 그대로 */ }
+    log("→ REQUEST  POST " + url, pretty);
+  }
+  const res = await originalFetch(input, init);
+  if (isAmp) {
+    let text = "";
+    try { text = await res.clone().text(); } catch (_) {}
+    log("← RESPONSE " + res.status + " " + res.statusText, text);
+  }
+  return res;
+};
+
+/* ─────────────────────────────────────────────────────────────
+   상태 표시
+   ───────────────────────────────────────────────────────────── */
+function pill(text, kind) {
+  const el = document.createElement("span");
+  el.className = "pill" + (kind ? " " + kind : "");
+  el.textContent = text;
+  return el;
+}
+function renderStatus() {
+  const amp = window.amplitude;
+  const userId = amp && amp.getUserId ? amp.getUserId() : undefined;
+  const rows = [
+    ["SDK 상태", ready ? pill("initialized", "good") : pill("not ready", "warn")],
+    ["api_key", API_KEY.slice(0, 10) + "…"],
+    ["server_zone", SERVER_ZONE],
+    ["user_id", userId || pill("(미설정 · 익명)", "warn")],
+    ["device_id", (amp && amp.getDeviceId && amp.getDeviceId()) || "—"],
+    ["session_id", (amp && amp.getSessionId && amp.getSessionId()) || "—"],
+    ["identity 쿠키", cookieName],
+    ["AMP* 쿠키", document.cookie.split(";").map(c => c.trim().split("=")[0])
+      .filter(n => n.startsWith("AMP")).join(", ") || "(없음)"],
+  ];
+  const tbody = document.querySelector("#status tbody");
+  tbody.innerHTML = "";
+  for (const [k, v] of rows) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th"); th.textContent = k;
+    const td = document.createElement("td");
+    if (v instanceof Node) td.appendChild(v); else td.textContent = v == null || v === "" ? "—" : String(v);
+    tr.append(th, td); tbody.appendChild(tr);
+  }
+}
+document.getElementById("btn-refresh").addEventListener("click", renderStatus);
+
+/* ─────────────────────────────────────────────────────────────
+   SDK 로드 및 초기화
+   ───────────────────────────────────────────────────────────── */
+let ready = false;
+
+function loadSdk() {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = SDK_URL;
+    s.onload = () => (window.amplitude ? resolve(window.amplitude) : reject(new Error("amplitude global missing")));
+    s.onerror = () => reject(new Error("SDK 로드 실패: " + SDK_URL));
+    document.head.appendChild(s);
+  });
+}
+
+(async () => {
+  try {
+    renderStatus();
+    log("SDK 로드 중… " + SDK_URL);
+    const amplitude = await loadSdk();
+
+    await amplitude.init(API_KEY, {
+      // 세션·페이지뷰·어트리뷰션은 켜 두고, 버튼 클릭/폼 입력 자동 수집은 끈다.
+      // 이 페이지의 버튼을 누르는 행위 자체가 이벤트로 잡히면 테스트 로그가 묻힌다.
+      autocapture: {
+        attribution: true,
+        pageViews: true,
+        sessions: true,
+        formInteractions: false,
+        fileDownloads: false,
+        elementInteractions: false,
+      },
+      flushIntervalMillis: 500,   // 테스트 편의를 위해 짧게
+      flushQueueSize: 1,
+      serverZone: SERVER_ZONE,
+      logLevel: 3,                // Verbose
+    }).promise;
+
+    ready = true;
+    log("init 완료. cookie=" + cookieName + "  device_id=" + amplitude.getDeviceId());
+
+    // 쿠키에 이미 user_id 가 캐싱되어 있으면 입력창에 채워 준다
+    const cached = amplitude.getUserId();
+    if (cached) {
+      document.getElementById("user-id").value = cached;
+      log("쿠키에 캐싱된 user_id 발견: " + cached);
+    }
+    renderStatus();
+    document.body.dataset.ready = "1";
+  } catch (e) {
+    log("ERROR: " + (e && e.message ? e.message : String(e)));
+    document.body.dataset.ready = "error";
+  }
+})();
+
+/* ─────────────────────────────────────────────────────────────
+   액션
+   ───────────────────────────────────────────────────────────── */
+function guard() {
+  if (!ready) { log("아직 SDK 초기화 전입니다. 잠시 후 다시 시도하세요."); return false; }
+  return true;
+}
+
+document.getElementById("btn-set-user").addEventListener("click", () => {
+  if (!guard()) return;
+  const v = document.getElementById("user-id").value.trim();
+  if (!v) { log("User ID 가 비어 있습니다."); return; }
+  window.amplitude.setUserId(v);
+  log('setUserId("' + v + '") 호출');
+  renderStatus();
+});
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  if (!guard()) return;
+  window.amplitude.reset();
+  document.getElementById("user-id").value = "";
+  log("reset() 호출 — user_id 제거, device_id 재발급");
+  renderStatus();
+});
+
+document.getElementById("btn-track").addEventListener("click", async () => {
+  if (!guard()) return;
+  const name = document.getElementById("event-name").value.trim();
+  if (!name) { log("이벤트명이 비어 있습니다."); return; }
+
+  const rawProps = document.getElementById("event-props").value.trim();
+  let props;
+  if (rawProps) {
+    try {
+      props = JSON.parse(rawProps);
+      if (typeof props !== "object" || props === null || Array.isArray(props)) {
+        throw new Error("최상위가 JSON 객체여야 합니다.");
+      }
+    } catch (e) {
+      log("Event Properties JSON 파싱 실패: " + e.message + " — 전송하지 않았습니다.");
+      return;
+    }
+  }
+
+  log('track("' + name + '")' + (props ? " properties=" + JSON.stringify(props) : "") + " 호출");
+  await window.amplitude.track(name, props).promise;
+  await window.amplitude.flush().promise;
+  renderStatus();
+});
+
+document.getElementById("btn-identify").addEventListener("click", async () => {
+  if (!guard()) return;
+  const id = new window.amplitude.Identify();
+  id.set("plan", "pro");
+  await window.amplitude.identify(id).promise;
+  await window.amplitude.flush().promise;
+  log("identify(plan=pro) 호출");
+});
+
+/* Enter 키 편의 */
+document.getElementById("user-id").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("btn-set-user").click();
+});
+document.getElementById("event-name").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("btn-track").click();
+});
+</script>
+</body>
+</html>
