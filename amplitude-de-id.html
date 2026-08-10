@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amplitude Web SDK Test</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:           #EDF1F8;
+    --surface:      #FFFFFF;
+    --surface-2:    #F6F9FD;
+    --ink:          #0A2545;
+    --ink-soft:     #46566E;
+    --ink-faint:    #8492A8;
+    --line:         #D5DEEC;
+    --yonsei:       #00337F;
+    --yonsei-mid:   #1E5FB0;
+    --yonsei-light: #E6EDF7;
+    --yonsei-line:  #C4D4EA;
+    --radius:       14px;
+    --maxw:         820px;
+
+    --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+    --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+    --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 72px 24px 120px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(34px, 6.5vw, 54px);
+    line-height: 1.18;
+    color: var(--ink);
+    margin: 0 0 56px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 .accent { color: var(--yonsei); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--yonsei);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    margin-bottom: 20px;
+  }
+
+  .label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  input[type="text"] {
+    flex: 1 1 240px;
+    min-width: 0;
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .15s ease, background .15s ease;
+  }
+
+  input[type="text"]::placeholder { color: var(--ink-faint); }
+
+  input[type="text"]:focus {
+    border-color: var(--yonsei-mid);
+    background: var(--surface);
+  }
+
+  button {
+    flex: 0 0 auto;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+    background: var(--yonsei);
+    border: 1px solid var(--yonsei);
+    border-radius: 10px;
+    padding: 12px 26px;
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+  }
+
+  button:hover { background: var(--yonsei-mid); border-color: var(--yonsei-mid); }
+  button:active { transform: translateY(1px); }
+
+  :focus-visible {
+    outline: 2px solid var(--yonsei-mid);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">Amplitude Browser SDK 2 · Test Page</p>
+  <h1>Amplitude <span class="accent">Web SDK</span> 테스트</h1>
+
+  <div class="card">
+    <label class="label" for="user-id-input">User ID</label>
+    <div class="row">
+      <input type="text" id="user-id-input" placeholder="User ID 를 입력하세요" autocomplete="off">
+      <button type="button" id="set-user-id-btn">Set</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="label" for="event-name-input">Event Name</label>
+    <div class="row">
+      <input type="text" id="event-name-input" placeholder="이벤트명을 입력하세요" autocomplete="off">
+      <button type="button" id="send-event-btn">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Amplitude Browser SDK 2 -->
+<script src="https://cdn.amplitude.com/libs/analytics-browser-2.45.5-min.js.gz"></script>
+<script>
+  // Configuration Options 은 모두 기본 설정
+  var AMPLITUDE_API_KEY = 'e256c58b525380ba922fd09d2d79a001';
+  amplitude.init(AMPLITUDE_API_KEY);
+
+  // User ID 입력 + Set → setUserId 호출 및 localStorage 저장
+  document.getElementById('set-user-id-btn').addEventListener('click', function () {
+    var userId = document.getElementById('user-id-input').value.trim();
+    if (!userId) return;
+
+    amplitude.setUserId(userId);
+    localStorage.setItem('userId', userId);
+  });
+
+  // 이벤트명 입력 + Send → track 호출
+  document.getElementById('send-event-btn').addEventListener('click', function () {
+    var eventName = document.getElementById('event-name-input').value.trim();
+    if (!eventName) return;
+
+    amplitude.track(eventName);
+  });
+</script>
+
+</body>
+</html>
