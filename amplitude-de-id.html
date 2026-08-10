@@ -173,7 +173,7 @@
 
 /** 웹 자체 User ID 캐시. Amplitude SDK 저장소(쿠키)와 완전히 별개다. */
 var SessionStore = {
-  KEY: 'app_user_id',
+  KEY: 'userId',
   getCachedUserId: function () {
     return localStorage.getItem(this.KEY);
   },
