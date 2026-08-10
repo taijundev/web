@@ -168,13 +168,10 @@
 <script>
 /* ══════════════════════════════════════════════════════════════════════════
  *  고객사 구현 영역 — Amplitude 와 무관한 코드
- *  아래 SessionStore 는 예시이며, 고객사 환경에 맞게 직접 구현한다.
+ *  아래 SessionStore / AuthAPI 는 예시이며, 고객사 환경에 맞게 직접 구현한다.
  * ══════════════════════════════════════════════════════════════════════════ */
 
-/** 웹 자체 User ID 캐시.
- *  방안1 에서도 앱/웹은 User ID 를 평소대로 사용한다.
- *  Amplitude 에만 전달하지 않을 뿐이며, 이 저장소는 SDK 와 무관하다.
- */
+/** 웹 자체 User ID 캐시. Amplitude SDK 저장소(쿠키)와 완전히 별개다. */
 var SessionStore = {
   KEY: 'userId',
   getCachedUserId: function () {
@@ -182,6 +179,30 @@ var SessionStore = {
   },
   setCachedUserId: function (userId) {
     localStorage.setItem(this.KEY, userId);
+  }
+};
+
+/** 원문 User ID 가명처리 API.
+ *  ⚠️ 실제 운영에서는 고객사 서버 엔드포인트를 호출한다.
+ *     HMAC-SHA256 은 반드시 서버에서 수행 (Secret Key 클라이언트 포함 금지).
+ *  아래는 테스트용 dummy 구현 — 'pseudo_' + SHA-256(원문) 앞 16 hex.
+ */
+var AuthAPI = {
+  pseudonymize: function (rawUserId, timeoutMs) {
+    var request = crypto.subtle
+      .digest('SHA-256', new TextEncoder().encode(rawUserId))
+      .then(function (buf) {
+        var hex = Array.from(new Uint8Array(buf))
+          .map(function (b) { return b.toString(16).padStart(2, '0'); })
+          .join('');
+        return 'pseudo_' + hex.slice(0, 16);
+      });
+
+    var timeout = new Promise(function (_, reject) {
+      setTimeout(function () { reject(new Error('pseudonymize timeout')); }, timeoutMs);
+    });
+
+    return Promise.race([request, timeout]);
   }
 };
 </script>
@@ -194,33 +215,78 @@ var SessionStore = {
 
 var AnalyticsManager = (function () {
 
-  var AMPLITUDE_API_KEY = 'e256c58b525380ba922fd09d2d79a001'; // 신규 프로젝트 API Key
+  var AMPLITUDE_API_KEY  = '7c52da39bdca1eb3c24dcb0503841b72'; // 신규 프로젝트 API Key
+  var MIGRATION_FLAG_KEY = 'amp_pseudonym_migrated_v2';
 
-  /** 페이지 로드 시 호출. */
-  function init() {
+  var ready; // 초기화 완료 Promise
+
+  /**
+   * 페이지 로드 시 호출.
+   * ⚠️ SDK 초기화보다 가명화가 먼저 완료되어야 하므로,
+   *    이 함수가 완료되기 전에는 어떤 이벤트도 트래킹하지 않는다.
+   */
+  function start() {
+    ready = (async function () {
+
+      // (1) SDK 초기화 이전: 최초 실행 플래그 확인 + 웹 자체 캐시의 User ID 확인
+      var migrated  = localStorage.getItem(MIGRATION_FLAG_KEY) === 'true';
+      var rawUserId = SessionStore.getCachedUserId();
+
+      if (migrated || !rawUserId) {
+        // 플래그 있음(마이그레이션 완료) 또는 캐시된 User ID 없음(미로그인)
+        initSDK(null);
+        return;
+      }
+
+      // (2) SDK 초기화 이전: 서버에 가명화 요청 후 완료까지 대기
+      //     구버전에서 로그인했던 유저는 재로그인 없이도 가명 식별값으로 맥락 유지
+      //     ⚠️ HMAC-SHA256 은 반드시 서버에서 수행 (Secret Key 클라이언트 포함 금지)
+      try {
+        var pseudonymizedUserId = await AuthAPI.pseudonymize(rawUserId, 3000);
+
+        initSDK(pseudonymizedUserId);                       // (3) 가명 식별값과 함께 초기화
+        localStorage.setItem(MIGRATION_FLAG_KEY, 'true');   // (4) 플래그 저장
+      } catch (e) {
+        // 실패: userId 없이 초기화 (이벤트는 신규 device_id 기준으로 유입)
+        // 플래그 미저장 → 다음 실행에서 재시도
+        initSDK(null);
+      }
+    })();
+
+    return ready;
+  }
+
+  function initSDK(pseudonymizedUserId) {
     // Configuration Options 은 모두 기본 설정.
     //
     // ⚠️ 웹의 구버전 SDK 캐시 격리는 API Key 교체만으로 자동 달성된다.
     //    Browser SDK 2 는 identity 정보를 `AMP_{API Key 앞 10자}` 쿠키에 저장하므로,
     //    신규 API Key 로 초기화하면 쿠키 이름이 달라져 구 Key 의 쿠키를 읽지 않는다.
     //    (삭제가 아니라 미참조 격리 → 구 SDK 캐시의 원문 User ID 미승계)
+    //    부수 효과로 device_id 가 신규 UUID 로 생성된다.
     //    → iOS/Android 의 instanceName 격리에 대응하는 웹 조치이며, 별도 설정이 필요 없다.
     //
-    // Device ID: 신규 쿠키에 SDK 가 새 UUID 를 생성하므로 추가 설정 불필요.
-    amplitude.init(AMPLITUDE_API_KEY);
-
-    // ❌ setUserId 호출 금지 — 로그인/회원가입/자동로그인 등 모든 코드 경로에서 제거
-    //    User ID 를 전달하지 않으므로 이벤트는 device_id 기준으로만 유입된다.
+    // userId 는 init 인자로 전달한다. 초기화 직후 autocapture 가 보내는
+    // 첫 이벤트(page view)부터 가명 식별값이 부여되도록 보장하기 위함이다.
+    amplitude.init(AMPLITUDE_API_KEY, pseudonymizedUserId || undefined);
   }
 
-  function track(eventType, eventProperties) {
-    amplitude.track(eventType, eventProperties);
+  /** 로그인 성공 시: 서버 로그인 응답에 포함된 가명 식별값을 설정 */
+  function onLoginSuccess(pseudonymizedUserId) {
+    amplitude.setUserId(pseudonymizedUserId);
+    localStorage.setItem(MIGRATION_FLAG_KEY, 'true');
   }
 
-  return { init: init, track: track };
+  /** 이벤트 전송. 초기화가 끝난 뒤에만 전송한다. */
+  async function track(eventName) {
+    await ready;
+    amplitude.track(eventName);
+  }
+
+  return { start: start, onLoginSuccess: onLoginSuccess, track: track };
 })();
 
-AnalyticsManager.init();
+AnalyticsManager.start();
 </script>
 
 
@@ -229,12 +295,16 @@ AnalyticsManager.init();
  *  테스트 페이지 UI 바인딩
  * ══════════════════════════════════════════════════════════════════════════ */
 
-// User ID 입력 + Set → 웹 자체 캐시에만 저장 (Amplitude 로는 전달하지 않음)
-document.getElementById('set-user-id-btn').addEventListener('click', function () {
-  var userId = document.getElementById('user-id-input').value.trim();
-  if (!userId) return;
+// User ID 입력 + Set → 로그인 성공 시나리오
+document.getElementById('set-user-id-btn').addEventListener('click', async function () {
+  var rawUserId = document.getElementById('user-id-input').value.trim();
+  if (!rawUserId) return;
 
-  SessionStore.setCachedUserId(userId);
+  // 원문은 웹 자체 캐시에만 저장하고, Amplitude 에는 가명 식별값만 전달한다.
+  SessionStore.setCachedUserId(rawUserId);
+
+  var pseudonymizedUserId = await AuthAPI.pseudonymize(rawUserId, 3000);
+  AnalyticsManager.onLoginSuccess(pseudonymizedUserId);
 });
 
 // 이벤트명 입력 + Send → 이벤트 전송
