@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>상품 상세 | 번쩍마켓</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%235B2EE5'/><text x='16' y='23' font-size='19' text-anchor='middle'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/amplitude.js"></script>
+</head>
+<body data-screen="product">
+
+<div class="app" id="pd" style="padding-bottom:80px">
+
+  <header class="hdr" id="zone-header" data-zone="header">
+    <div class="hdr__page">
+      <a class="icon-btn" href="index.html" aria-label="뒤로">‹</a>
+      <h1 class="hdr__title">상품 상세</h1>
+      <button class="icon-btn" type="button" aria-label="공유">↗</button>
+    </div>
+  </header>
+
+  <!-- ============ 존: 상품 이미지 ============ -->
+  <section class="pd__hero" id="zone-hero" data-zone="product-image">
+    <div class="thumb__fallback" id="pd-fallback" aria-hidden="true">📦</div>
+  </section>
+
+  <!-- ============ 존: 상품 기본 정보 ============ -->
+  <section class="pd__body" id="zone-info" data-zone="product-info">
+    <h2 class="pd__name" id="pd-name"></h2>
+    <div class="pd__price" id="pd-price"></div>
+    <div class="pd__meta" id="pd-meta"></div>
+    <div class="pd__tags" id="pd-tags"></div>
+    <div class="card__meta" id="pd-stats" style="margin-top:12px"></div>
+  </section>
+
+  <!-- ============ 존: 판매자 정보 ============ -->
+  <section class="seller" id="zone-seller" data-zone="seller-info">
+    <div class="seller__avatar" id="pd-seller-avatar" aria-hidden="true"></div>
+    <div>
+      <div class="seller__name" id="pd-seller-name"></div>
+      <div class="seller__sub" id="pd-seller-sub"></div>
+    </div>
+    <a class="section__more" href="mypage.html" style="margin-left:auto">상점 보기 ›</a>
+  </section>
+
+  <!-- ============ 존: 상품 설명 ============ -->
+  <section class="section" id="zone-desc" data-zone="product-description">
+    <div class="section__head"><h2 class="section__title">상품 정보</h2></div>
+    <p class="pd__desc" id="pd-desc"></p>
+  </section>
+
+  <!-- ============ 존: 안전결제 안내 ============ -->
+  <section class="section" id="zone-safepay" data-zone="safepay-notice">
+    <div class="notice">
+      <span aria-hidden="true">🛡</span>
+      <span><strong>번쩍 안전결제</strong>로 거래하면 결제 금액을 번쩍마켓이 보관했다가,
+      구매자가 물건을 확인한 뒤 판매자에게 정산합니다. 직거래·계좌이체는 보호받을 수 없습니다.</span>
+    </div>
+  </section>
+
+  <!-- ============ 존: 관련 상품 ============ -->
+  <section class="section section--flush" id="zone-related" data-zone="related-products">
+    <div class="section__head">
+      <h2 class="section__title">이런 상품은 어때요?</h2>
+      <a class="section__more" href="category.html?c=all">전체보기 ›</a>
+    </div>
+    <div class="rail"></div>
+  </section>
+
+  <footer class="section" style="text-align:center;color:var(--ink-faint);font-size:11.5px;line-height:1.8">
+    본 페이지는 Amplitude Zoning Insights 시연용 데모입니다. 실제 거래는 이루어지지 않습니다.
+  </footer>
+
+  <!-- ============ 존: 하단 구매 바 ============ -->
+  <div class="buybar" id="zone-buybar" data-zone="purchase-bar">
+    <button class="buybar__like" type="button" id="pd-like" aria-label="찜하기" aria-pressed="false">♡</button>
+    <button class="btn btn--ghost btn--wide" type="button" id="pd-chat">채팅하기</button>
+    <button class="btn btn--primary btn--wide" type="button" id="pd-buy">안전결제</button>
+  </div>
+
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/debug-panel.js"></script>
+</body>
+</html>

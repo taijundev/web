@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="번쩍마켓 — Amplitude Zoning Insights 시연용 중고거래 데모 웹사이트">
+<meta name="robots" content="noindex">
+<title>번쩍마켓 | 번쩍하고 거래되는 중고마켓</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%235B2EE5'/><text x='16' y='23' font-size='19' text-anchor='middle'>⚡</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/amplitude.js"></script>
+</head>
+<body data-screen="home">
+
+<div class="app">
+
+  <!-- ============ 존: 헤더 / 검색 ============ -->
+  <header class="hdr" id="zone-header" data-zone="header">
+    <div class="hdr__top">
+      <a class="logo" href="index.html" aria-label="번쩍마켓 홈">
+        <span class="logo__bolt" aria-hidden="true">⚡</span>번쩍마켓
+      </a>
+      <span class="hdr__spacer"></span>
+      <a class="icon-btn" href="search.html" aria-label="검색">🔍</a>
+      <a class="icon-btn" href="mypage.html" aria-label="알림">
+        🔔<span class="icon-btn__dot">3</span>
+      </a>
+      <a class="icon-btn" href="mypage.html" aria-label="채팅">💬</a>
+    </div>
+    <a class="searchbar" id="search-entry" href="search.html" data-zone="search-entry">
+      <span aria-hidden="true">🔍</span>
+      <span>어떤 물건을 찾고 계신가요?</span>
+    </a>
+  </header>
+
+  <!-- ============ 존: 메인 배너 ============ -->
+  <section class="banner" id="zone-banner" data-zone="main-banner" aria-label="프로모션 배너">
+    <div class="banner__track">
+      <a class="banner__slide" href="category.html?c=digital"
+         data-banner-id="bn_welcome" data-banner-title="첫 구매 15,000원 할인" data-banner-position="1">
+        <span class="banner__tag">신규회원 혜택</span>
+        <h2 class="banner__title">첫 구매 15,000원 할인</h2>
+        <p class="banner__desc">가입만 해도 즉시 쓰는 쿠폰팩</p>
+        <span class="banner__cta">쿠폰 받기</span>
+        <span class="banner__emoji" aria-hidden="true">⚡</span>
+      </a>
+      <a class="banner__slide" href="category.html?c=watch"
+         data-banner-id="bn_safepay" data-banner-title="사기 걱정 없는 중고거래" data-banner-position="2">
+        <span class="banner__tag">번쩍 안전결제</span>
+        <h2 class="banner__title">사기 걱정 없는 중고거래</h2>
+        <p class="banner__desc">수령 확인 후 판매자에게 정산됩니다</p>
+        <span class="banner__cta">자세히 보기</span>
+        <span class="banner__emoji" aria-hidden="true">🛡</span>
+      </a>
+      <a class="banner__slide" href="category.html?c=sports"
+         data-banner-id="bn_deal" data-banner-title="매일 밤 9시 반값 특가" data-banner-position="3">
+        <span class="banner__tag">오늘의 번쩍딜</span>
+        <h2 class="banner__title">매일 밤 9시, 반값 특가</h2>
+        <p class="banner__desc">하루 30개 한정 · 선착순 마감</p>
+        <span class="banner__cta">딜 보러가기</span>
+        <span class="banner__emoji" aria-hidden="true">🔥</span>
+      </a>
+    </div>
+    <div class="banner__dots" aria-hidden="true">
+      <span class="banner__dot is-on"></span>
+      <span class="banner__dot"></span>
+      <span class="banner__dot"></span>
+    </div>
+  </section>
+
+  <!-- ============ 존: 카테고리 ============ -->
+  <section class="section" id="zone-category" data-zone="category-grid">
+    <div class="section__head">
+      <h2 class="section__title">카테고리</h2>
+      <a class="section__more" href="category.html?c=all">전체보기 ›</a>
+    </div>
+    <nav class="cats" aria-label="카테고리">
+      <a class="cat" href="category.html?c=women"   data-category-id="women"   data-category-name="여성의류"><span class="cat__icon">👗</span><span class="cat__label">여성의류</span></a>
+      <a class="cat" href="category.html?c=men"     data-category-id="men"     data-category-name="남성의류"><span class="cat__icon">🧥</span><span class="cat__label">남성의류</span></a>
+      <a class="cat" href="category.html?c=shoes"   data-category-id="shoes"   data-category-name="신발"><span class="cat__icon">👟</span><span class="cat__label">신발</span></a>
+      <a class="cat" href="category.html?c=bag"     data-category-id="bag"     data-category-name="가방/지갑"><span class="cat__icon">👜</span><span class="cat__label">가방/지갑</span></a>
+      <a class="cat" href="category.html?c=watch"   data-category-id="watch"   data-category-name="시계/주얼리"><span class="cat__icon">⌚</span><span class="cat__label">시계/주얼리</span></a>
+      <a class="cat" href="category.html?c=digital" data-category-id="digital" data-category-name="디지털/가전"><span class="cat__icon">💻</span><span class="cat__label">디지털/가전</span></a>
+      <a class="cat" href="category.html?c=sports"  data-category-id="sports"  data-category-name="스포츠/레저"><span class="cat__icon">⛳</span><span class="cat__label">스포츠/레저</span></a>
+      <a class="cat" href="category.html?c=car"     data-category-id="car"     data-category-name="차량/오토바이"><span class="cat__icon">🏍️</span><span class="cat__label">차량/오토바이</span></a>
+      <a class="cat" href="category.html?c=star"    data-category-id="star"    data-category-name="스타굿즈"><span class="cat__icon">🎤</span><span class="cat__label">스타굿즈</span></a>
+      <a class="cat" href="category.html?c=kidult"  data-category-id="kidult"  data-category-name="키덜트"><span class="cat__icon">🧸</span><span class="cat__label">키덜트</span></a>
+      <a class="cat" href="category.html?c=beauty"  data-category-id="beauty"  data-category-name="뷰티/미용"><span class="cat__icon">💄</span><span class="cat__label">뷰티/미용</span></a>
+      <a class="cat" href="category.html?c=ticket"  data-category-id="ticket"  data-category-name="도서/티켓"><span class="cat__icon">🎫</span><span class="cat__label">도서/티켓</span></a>
+    </nav>
+  </section>
+
+  <!-- ============ 존: 퀵메뉴 ============ -->
+  <section class="section" id="zone-quick" data-zone="quick-menu">
+    <div class="quick">
+      <a class="quick__item" href="category.html?c=all" data-quick="번쩍딜">
+        <span class="quick__emoji">🔥</span><span class="quick__label">번쩍딜</span>
+      </a>
+      <a class="quick__item" href="category.html?c=watch" data-quick="브랜드중고">
+        <span class="quick__emoji">💎</span><span class="quick__label">브랜드중고</span>
+      </a>
+      <a class="quick__item" href="category.html?c=digital" data-quick="안전결제">
+        <span class="quick__emoji">🛡</span><span class="quick__label">안전결제</span>
+      </a>
+      <!-- 의도적으로 동작하지 않는 메뉴: Dead click / Rage click 시연용 -->
+      <a class="quick__item" href="#" id="quick-wip" data-quick="내근처">
+        <span class="quick__emoji">📍</span><span class="quick__label">내 근처</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 존: 실시간 인기 검색어 ============ -->
+  <section class="trend" id="zone-trend" data-zone="trending-keyword" aria-label="실시간 인기 검색어">
+    <span class="trend__badge">실시간 인기</span>
+    <div class="trend__roll" id="trend-roll"></div>
+    <a class="section__more" href="search.html">더보기 ›</a>
+  </section>
+
+  <!-- ============ 존: 오늘의 번쩍딜 ============ -->
+  <section class="section section--flush" id="zone-deal" data-zone="today-deal">
+    <div class="section__head">
+      <h2 class="section__title">오늘의 번쩍딜</h2>
+      <span class="section__sub">21:00 마감</span>
+      <a class="section__more" href="category.html?c=all">전체보기 ›</a>
+    </div>
+    <div class="rail"></div>
+  </section>
+
+  <!-- ============ 존: 브랜드 중고 추천 ============ -->
+  <section class="section section--flush" id="zone-brand" data-zone="brand-pick">
+    <div class="section__head">
+      <h2 class="section__title">브랜드 중고 추천</h2>
+      <span class="section__sub">검수 완료 상품</span>
+      <a class="section__more" href="category.html?c=watch">전체보기 ›</a>
+    </div>
+    <div class="rail"></div>
+  </section>
+
+  <!-- ============ 존: 메인 피드 ============ -->
+  <section class="section" id="zone-feed" data-zone="main-feed">
+    <div class="section__head">
+      <h2 class="section__title">지금 뜨는 상품</h2>
+      <span class="section__sub">내 취향 기반 추천</span>
+    </div>
+    <div class="grid"></div>
+    <button class="loadmore" id="feed-more" type="button">상품 더보기 ▾</button>
+  </section>
+
+  <footer class="section" style="text-align:center;color:var(--ink-faint);font-size:11.5px;line-height:1.8">
+    번쩍마켓은 Amplitude Zoning Insights 시연을 위해 만든 가상의 데모 사이트입니다.<br>
+    실제 서비스가 아니며, 모든 상품·판매자·가격은 더미 데이터입니다.
+  </footer>
+
+  <!-- ============ 존: 하단 네비게이션 ============ -->
+  <nav class="nav" id="zone-bottomnav" data-zone="bottom-nav" aria-label="주요 메뉴">
+    <a class="nav__item is-on" href="index.html"><span class="nav__icon">🏠</span>홈</a>
+    <a class="nav__item" href="category.html?c=all"><span class="nav__icon">☰</span>카테고리</a>
+    <a class="nav__item nav__sell" href="mypage.html"><span class="nav__icon">＋</span>판매하기</a>
+    <a class="nav__item" href="search.html"><span class="nav__icon">🔍</span>검색</a>
+    <a class="nav__item" href="mypage.html"><span class="nav__icon">👤</span>마이</a>
+  </nav>
+
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/debug-panel.js"></script>
+</body>
+</html>
