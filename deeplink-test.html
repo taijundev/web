@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airbridge Deeplink Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #EDF1F8;
+    --surface:      #FFFFFF;
+    --surface-2:    #F6F9FD;
+    --ink:          #0A2545;
+    --ink-soft:     #46566E;
+    --ink-faint:    #8492A8;
+    --line:         #D5DEEC;
+    --yonsei:       #00337F;
+    --yonsei-mid:   #1E5FB0;
+    --yonsei-light: #E6EDF7;
+    --yonsei-line:  #C4D4EA;
+    --formula-bg:   #062A5E;
+    --formula-ink:  #EAF0FA;
+    --formula-acc:  #9DC2EE;
+    --good:         #1B7F5A;
+    --warn:         #B25A00;
+    --radius:       14px;
+    --maxw:         820px;
+
+    --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+    --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+    --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 64px 24px 120px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(34px, 6.5vw, 54px);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin: 0 0 20px;
+  }
+
+  h1 .accent { color: var(--yonsei); }
+
+  .lede {
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 62ch;
+    margin: 0 0 48px;
+  }
+
+  .section-no {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+    text-transform: uppercase;
+  }
+
+  .cards {
+    display: grid;
+    gap: 18px;
+    margin: 0 0 40px;
+  }
+
+  .card {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 26px 24px 30px;
+    overflow: hidden;
+    font-family: var(--sans);
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--yonsei);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(10, 37, 69, 0.10);
+    border-color: var(--yonsei-line);
+  }
+
+  .card:focus-visible {
+    outline: 2px solid var(--yonsei-mid);
+    outline-offset: 3px;
+  }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.35;
+    margin: 0 0 8px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+  }
+
+  .card-target {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--yonsei);
+    background: var(--yonsei-light);
+    border: 1px solid var(--yonsei-line);
+    border-radius: 6px;
+    padding: 4px 9px;
+    display: inline-block;
+    word-break: break-all;
+  }
+
+  .code {
+    background: var(--formula-bg);
+    color: var(--formula-ink);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 0 0 18px;
+    white-space: pre;
+  }
+
+  .code .v { color: var(--formula-acc); }
+
+  dl.meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 8px 20px;
+    margin: 0;
+    font-size: 14px;
+  }
+
+  dl.meta dt {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 3px;
+  }
+
+  dl.meta dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  .callout {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--yonsei);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  .callout.warn { border-left-color: var(--warn); }
+
+  .callout strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  hr.rule {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 52px 0 44px;
+  }
+
+  footer {
+    margin-top: 56px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .rise {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: rise 620ms cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .d1 { animation-delay: 60ms; }
+  .d2 { animation-delay: 140ms; }
+  .d3 { animation-delay: 220ms; }
+  .d4 { animation-delay: 300ms; }
+  .d5 { animation-delay: 380ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise { animation: none; opacity: 1; transform: none; }
+    .card { transition: none; }
+    .card:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow rise d1">Airbridge · Deeplink Test</p>
+
+  <h1 class="rise d1">딥링크 <span class="accent">동작 확인</span> 페이지</h1>
+
+  <p class="lede rise d2">
+    두 가지 방식으로 앱을 열어 봅니다. 하나는 Airbridge 트래킹 링크,
+    다른 하나는 Android Chrome의 Intent URI 입니다.
+    아래 버튼을 눌러 각 경로가 실제 기기에서 어떻게 동작하는지 확인하십시오.
+  </p>
+
+  <p class="section-no rise d2">01 — 실행</p>
+
+  <div class="cards">
+    <a class="card rise d3" href="https://abr.ge/t5kej8">
+      <span class="card-label">Method 01</span>
+      <h2 class="card-title">Airbridge Link</h2>
+      <p class="card-desc">Airbridge 트래킹 링크로 이동합니다. 앱 설치 여부에 따라 딥링크 또는 스토어로 분기됩니다.</p>
+      <span class="card-target">https://abr.ge/t5kej8</span>
+    </a>
+
+    <a class="card rise d4" id="chrome-intent" href="intent://second#Intent;scheme=airbridge;package=com.taijun.airbridgedev;S.browser_fallback_url=https%3A%2F%2Fab180.co;end">
+      <span class="card-label">Method 02</span>
+      <h2 class="card-title">Chrome Intent</h2>
+      <p class="card-desc">Android Chrome의 Intent URI로 앱을 직접 호출합니다. 앱이 없으면 폴백 URL로 이동합니다.</p>
+      <span class="card-target">airbridge://second</span>
+    </a>
+  </div>
+
+  <hr class="rule">
+
+  <p class="section-no rise d5">02 — Chrome Intent 상세</p>
+
+  <div class="code rise d5">intent://<span class="v">second</span>#Intent;
+  scheme=<span class="v">airbridge</span>;
+  package=<span class="v">com.taijun.airbridgedev</span>;
+  S.browser_fallback_url=<span class="v">https%3A%2F%2Fab180.co</span>;
+end</div>
+
+  <dl class="meta rise d5">
+    <dt>Deeplink</dt><dd>airbridge://second</dd>
+    <dt>Scheme</dt><dd>airbridge</dd>
+    <dt>Host</dt><dd>second</dd>
+    <dt>Package</dt><dd>com.taijun.airbridgedev</dd>
+    <dt>Fallback</dt><dd>https://ab180.co</dd>
+  </dl>
+
+  <hr class="rule">
+
+  <div class="callout warn">
+    <strong>테스트 환경 안내</strong> — Chrome Intent URI는 <strong>Android Chrome</strong> 에서만 동작합니다.
+    iOS Safari, 데스크톱 브라우저, 인앱 브라우저(카카오톡·인스타그램 등)에서는 무시되거나 폴백으로 처리될 수 있습니다.
+    폴백 URL은 Chrome이 대상 앱을 찾지 못했을 때만 열립니다.
+  </div>
+
+  <footer>Airbridge Deeplink Test · com.taijun.airbridgedev</footer>
+
+</div>
+</body>
+</html>
