@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airbridge Link Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:           #EDF1F8;
+      --surface:      #FFFFFF;
+      --surface-2:    #F6F9FD;
+      --ink:          #0A2545;
+      --ink-soft:     #46566E;
+      --ink-faint:    #8492A8;
+      --line:         #D5DEEC;
+      --yonsei:       #00337F;
+      --yonsei-mid:   #1E5FB0;
+      --yonsei-light: #E6EDF7;
+      --yonsei-line:  #C4D4EA;
+      --warn:         #B25A00;
+      --radius:       14px;
+      --maxw:         820px;
+      --serif: "Noto Serif KR", Georgia, "Apple SD Gothic Neo", serif;
+      --sans:  "IBM Plex Sans KR", -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif;
+      --mono:  "IBM Plex Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--ink-soft);
+      font-family: var(--sans);
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    main {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 56px 24px 120px;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: clamp(34px, 6.5vw, 54px);
+      line-height: 1.15;
+      color: var(--ink);
+      margin: 0 0 12px;
+      letter-spacing: -0.01em;
+    }
+    h1 .accent { color: var(--yonsei); }
+    .lede { margin: 0 0 40px; font-size: 16px; color: var(--ink-soft); }
+
+    section.card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--yonsei);
+      border-radius: var(--radius);
+      padding: 28px 28px 24px;
+    }
+    h2 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 24px;
+      color: var(--ink);
+      margin: 0 0 18px;
+    }
+    label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--ink-faint);
+      margin-bottom: 8px;
+    }
+    input[type="url"] {
+      width: 100%;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--ink);
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-2);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input[type="url"]:focus-visible {
+      border-color: var(--yonsei-mid);
+      box-shadow: 0 0 0 3px var(--yonsei-light);
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button {
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 14px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--yonsei);
+      cursor: pointer;
+      transition: background .15s, color .15s, transform .15s;
+    }
+    button.primary { background: var(--yonsei); color: #fff; }
+    button.primary:hover { background: var(--yonsei-mid); border-color: var(--yonsei-mid); }
+    button.secondary { background: var(--surface); color: var(--yonsei); border-color: var(--yonsei-line); }
+    button.secondary:hover { background: var(--yonsei-light); }
+    button:focus-visible { outline: 2px solid var(--yonsei-mid); outline-offset: 2px; }
+    button:active { transform: translateY(1px); }
+
+    .error {
+      font-size: 13px;
+      color: var(--warn);
+      margin: 10px 0 0;
+      min-height: 1.4em;
+    }
+
+    .links-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+    .links-head .eyebrow { margin: 0; }
+    .links-head .count { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+    ul#links { list-style: none; margin: 12px 0 0; padding: 0; }
+    ul#links li {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-2);
+      margin-bottom: 8px;
+      overflow-x: auto;
+      animation: rise .35s ease both;
+    }
+    ul#links li a {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--yonsei);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      white-space: nowrap;
+    }
+    ul#links li a:hover { color: var(--yonsei-mid); }
+    ul#links li a:focus-visible { outline: 2px solid var(--yonsei-mid); outline-offset: 2px; border-radius: 4px; }
+    .empty { font-size: 14px; color: var(--ink-faint); margin: 12px 0 0; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      ul#links li { animation: none; }
+      button, input[type="url"] { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Airbridge · Deeplink Test</p>
+    <h1><span class="accent">Airbridge Link</span> 테스트</h1>
+    <p class="lede">Airbridge Link를 입력하고 하이퍼링크로 만들어 실제 기기에서 딥링크 동작을 확인합니다.</p>
+
+    <section class="card" aria-labelledby="section-title">
+      <h2 id="section-title">Airbridge Link</h2>
+
+      <form id="link-form" novalidate>
+        <label for="link-input">AIRBRIDGE LINK</label>
+        <input type="url" id="link-input" placeholder="https://abr.ge/@your-app/..." autocomplete="off" spellcheck="false" inputmode="url">
+        <div class="actions">
+          <button type="submit" class="primary" id="create-btn">하이퍼링크 생성</button>
+          <button type="button" class="secondary" id="reset-btn">초기화</button>
+        </div>
+        <p class="error" id="error" role="alert" aria-live="polite"></p>
+      </form>
+
+      <div class="links-head">
+        <p class="eyebrow">생성된 하이퍼링크</p>
+        <span class="count" id="count">0</span>
+      </div>
+      <ul id="links" aria-live="polite"></ul>
+      <p class="empty" id="empty">아직 생성된 하이퍼링크가 없습니다.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var form     = document.getElementById('link-form');
+      var input    = document.getElementById('link-input');
+      var resetBtn = document.getElementById('reset-btn');
+      var errorEl  = document.getElementById('error');
+      var list     = document.getElementById('links');
+      var countEl  = document.getElementById('count');
+      var emptyEl  = document.getElementById('empty');
+
+      function refresh() {
+        var n = list.children.length;
+        countEl.textContent = String(n);
+        emptyEl.hidden = n > 0;
+      }
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+      }
+
+      function addLink(url) {
+        var li = document.createElement('li');
+        var a  = document.createElement('a');
+        a.href = url;
+        a.textContent = url;
+        a.rel = 'noopener';
+        li.appendChild(a);
+        list.appendChild(li);
+        refresh();
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var value = input.value.trim();
+        showError('');
+        if (!value) {
+          showError('Airbridge Link를 입력해 주세요.');
+          input.focus();
+          return;
+        }
+        addLink(value);
+        input.value = '';
+        input.focus();
+      });
+
+      resetBtn.addEventListener('click', function () {
+        while (list.firstChild) list.removeChild(list.firstChild);
+        input.value = '';
+        showError('');
+        refresh();
+        input.focus();
+      });
+
+      refresh();
+    })();
+  </script>
+</body>
+</html>
