@@ -76,6 +76,7 @@
       color: var(--ink);
       margin: 0 0 18px;
     }
+    .field + .field { margin-top: 14px; }
     label {
       display: block;
       font-family: var(--mono);
@@ -84,7 +85,7 @@
       color: var(--ink-faint);
       margin-bottom: 8px;
     }
-    input[type="url"] {
+    input[type="url"], input[type="text"] {
       width: 100%;
       font-family: var(--mono);
       font-size: 15px;
@@ -96,7 +97,7 @@
       outline: none;
       transition: border-color .15s, box-shadow .15s;
     }
-    input[type="url"]:focus-visible {
+    input[type="url"]:focus-visible, input[type="text"]:focus-visible {
       border-color: var(--yonsei-mid);
       box-shadow: 0 0 0 3px var(--yonsei-light);
     }
@@ -160,7 +161,7 @@
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
     @media (prefers-reduced-motion: reduce) {
       ul#links li { animation: none; }
-      button, input[type="url"] { transition: none; }
+      button, input[type="url"], input[type="text"] { transition: none; }
     }
   </style>
 </head>
@@ -174,8 +175,14 @@
       <h2 id="section-title">Airbridge Link</h2>
 
       <form id="link-form" novalidate>
-        <label for="link-input">AIRBRIDGE LINK</label>
-        <input type="url" id="link-input" placeholder="https://abr.ge/@your-app/..." autocomplete="off" spellcheck="false" inputmode="url">
+        <div class="field">
+          <label for="link-input">AIRBRIDGE LINK</label>
+          <input type="url" id="link-input" placeholder="https://abr.ge/@your-app/..." autocomplete="off" spellcheck="false" inputmode="url">
+        </div>
+        <div class="field">
+          <label for="name-input">LINK NAME</label>
+          <input type="text" id="name-input" placeholder="하이퍼링크에 표시할 이름 (비우면 링크 주소 표시)" autocomplete="off">
+        </div>
         <div class="actions">
           <button type="submit" class="primary" id="create-btn">하이퍼링크 생성</button>
           <button type="button" class="secondary" id="reset-btn">초기화</button>
@@ -196,6 +203,7 @@
     (function () {
       var form     = document.getElementById('link-form');
       var input    = document.getElementById('link-input');
+      var nameIn   = document.getElementById('name-input');
       var resetBtn = document.getElementById('reset-btn');
       var errorEl  = document.getElementById('error');
       var list     = document.getElementById('links');
@@ -212,11 +220,12 @@
         errorEl.textContent = msg;
       }
 
-      function addLink(url) {
+      function addLink(url, name) {
         var li = document.createElement('li');
         var a  = document.createElement('a');
         a.href = url;
-        a.textContent = url;
+        a.textContent = name || url;
+        a.title = url;
         a.rel = 'noopener';
         li.appendChild(a);
         list.appendChild(li);
@@ -232,14 +241,16 @@
           input.focus();
           return;
         }
-        addLink(value);
+        addLink(value, nameIn.value.trim());
         input.value = '';
+        nameIn.value = '';
         input.focus();
       });
 
       resetBtn.addEventListener('click', function () {
         while (list.firstChild) list.removeChild(list.firstChild);
         input.value = '';
+        nameIn.value = '';
         showError('');
         refresh();
         input.focus();
